@@ -11,7 +11,10 @@ import org.tmatesoft.svn.core.wc.admin.ISVNChangeEntryHandler;
 import org.tmatesoft.svn.core.wc.admin.SVNChangeEntry;
 import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
 
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
+
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
 import fr.hardcoding.svn.hooktools.configuration.Rule;
 
@@ -46,6 +49,8 @@ public abstract class AbstractHook {
 	protected String commitAuthor;
 	/** The commit changes (<code>null</code> if not available). */
 	protected List<ResourceChange> commitChanges;
+	/** The commit diffs (<code>null</code> if not available). */
+	protected List<ResourceDiff> commitDiffs;
 
 	/*
 	 * Result related.
@@ -158,7 +163,7 @@ public abstract class AbstractHook {
 	 * 
 	 * @return The commit changes.
 	 * @throws UnavailableHookDataException
-	 *             Throws exception if the commit author could not be retrieved.
+	 *             Throws exception if the commit changes could not be retrieved.
 	 */
 	public List<ResourceChange> getCommitChanges() throws UnavailableHookDataException {
 		// Check the commit changes
@@ -179,26 +184,22 @@ public abstract class AbstractHook {
 							// Get resource operation
 							ResourceOperation operation;
 							switch (changeEntry.getType()) {
-							case SVNChangeEntry.TYPE_ADDED:
-								operation = ResourceOperation.ITEM_ADDED;
-								break;
-							case SVNChangeEntry.TYPE_DELETED:
-								operation = ResourceOperation.ITEM_DELETED;
-								break;
-							default:
-							case SVNChangeEntry.TYPE_UPDATED:
-								if (changeEntry.hasPropertyModifications()) {
-									if (changeEntry.hasTextModifications()) {
-										operation = ResourceOperation.FILE_CONTENT_AND_PROPERTY_CHANGED;
-									} else {
-										operation = ResourceOperation.PROPERTY_CHANGED;
-									}
-								} else {
-									operation = ResourceOperation.FILE_CONTENT_CHANGED;
-								}
+								case SVNChangeEntry.TYPE_ADDED:
+									if (changeEntry.getCopyFromPath()==null)
+										operation = ResourceOperation.ADDED;
+									else
+										operation = ResourceOperation.COPIED;
+									break;
+								case SVNChangeEntry.TYPE_DELETED:
+									operation = ResourceOperation.DELETED;
+									break;
+								case SVNChangeEntry.TYPE_UPDATED:
+									operation = ResourceOperation.UPDATED;
+								default:
+									operation = ResourceOperation.PROPERTY_CHANGED;
 							}
 							// Create and add resource change
-							ResourceChange resourceChange = new ResourceChange(operation, changeEntry.getPath());
+							ResourceChange resourceChange = new ResourceChange(changeEntry.getPath(), operation, changeEntry.hasPropertyModifications());
 							AbstractHook.this.commitChanges.add(resourceChange);
 						}
 					}, true);
@@ -208,11 +209,50 @@ public abstract class AbstractHook {
 					throw new UnavailableHookDataException("revision / transaction");
 				}
 			} catch (SVNException exception) {
-				throw new UnavailableHookDataException("commit author", exception);
+				throw new UnavailableHookDataException("commit changes", exception);
 			}
 		}
 		// Return the commit changes
 		return this.commitChanges;
+	}
+
+	/**
+	 * Get the commit diffs.
+	 * 
+	 * @return The commit diffs.
+	 * @throws UnavailableHookDataException
+	 *             Throws exception if the commit diffs could not be retrieved.
+	 */
+	public List<ResourceDiff> getCommitDiffs() throws UnavailableHookDataException {
+		// Check the commit diffs
+		if (this.commitDiffs==null) {
+			// Create output stream for diff result
+			try (ByteOutputStream byteOutputStream = new ByteOutputStream()) {
+				// Check repository path
+				if (this.repositoryPath==null)
+					throw new UnavailableHookDataException("repository path");
+				// Check transaction name
+				if (this.transactionName!=null) {
+					// Get SVN look client
+					SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
+					this.commitChanges = new ArrayList<>();
+					// Get commit changes from transaction
+					svnLookClient.doGetDiff(this.repositoryPath, this.transactionName, true, true, true, byteOutputStream);
+				} else if (this.revisionNumber!=-1) {
+					// TODO Handle revision
+				} else {
+					throw new UnavailableHookDataException("revision / transaction");
+				}
+				// Get diff output from output stream
+				String diffOutput = new String(byteOutputStream.getBytes());
+				// Parse diff output as resource diffs
+				this.commitDiffs = DiffTools.parseDiffs(diffOutput);
+			} catch (SVNException exception) {
+				throw new UnavailableHookDataException("commit diffs", exception);
+			}
+		}
+		// Return the commit diffs
+		return this.commitDiffs;
 	}
 
 	/**

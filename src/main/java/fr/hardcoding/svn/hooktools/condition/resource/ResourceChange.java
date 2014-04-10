@@ -8,22 +8,31 @@ package fr.hardcoding.svn.hooktools.condition.resource;
  * 
  */
 public class ResourceChange {
-	/** The resource change operation. */
-	private final ResourceOperation operation;
 	/** The resource path changed. */
 	private final String path;
+	/** The resource change operation. */
+	private final ResourceOperation operation;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param operation
-	 *            The resource change operation.
 	 * @param path
 	 *            The resource path changed.
+	 * @param operation
+	 *            The resource change operation.
 	 */
-	public ResourceChange(ResourceOperation operation, String path) {
-		this.operation = operation;
+	public ResourceChange(String path, ResourceOperation operation, boolean propertyChanged) {
 		this.path = path;
+		this.operation = operation;
+	}
+	
+	/**
+	 * Get the resource path changed.
+	 * 
+	 * @return The resource path changed.
+	 */
+	public String getPath() {
+		return this.path;
 	}
 
 	/**
@@ -33,14 +42,5 @@ public class ResourceChange {
 	 */
 	public ResourceOperation getOperation() {
 		return this.operation;
-	}
-
-	/**
-	 * Get the resource path changed.
-	 * 
-	 * @return The resource path changed.
-	 */
-	public String getPath() {
-		return this.path;
 	}
 }

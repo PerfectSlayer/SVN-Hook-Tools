@@ -7,14 +7,14 @@ package fr.hardcoding.svn.hooktools.condition.resource;
  * 
  */
 public enum ResourceOperation {
-	/** The item (file or directory) added operation. */
-	ITEM_ADDED,
-	/** The item (file or directory) deleted operation. */
-	ITEM_DELETED,
-	/** The file content changed operation. */
-	FILE_CONTENT_CHANGED,
-	/** The item (file or directory) property changed operation. */
-	PROPERTY_CHANGED,
-	/** The file content and property changed operation. */
-	FILE_CONTENT_AND_PROPERTY_CHANGED;
+	/** The file or directory add operation. */
+	ADDED,
+	/** The file or directory copy operation. */
+	COPIED,
+	/** The file or directory deletion operation. */
+	DELETED,
+	/** The file updated operation. */
+	UPDATED,
+	/** The file or directory property change operation (only property, not content). */
+	PROPERTY_CHANGED;
 }
