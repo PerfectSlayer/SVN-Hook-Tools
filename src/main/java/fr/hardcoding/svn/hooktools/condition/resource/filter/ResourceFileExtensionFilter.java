@@ -1,6 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
+import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
 /**
@@ -10,17 +11,17 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public class ResourceFileExtensionFilter extends AbstractResourceFilter {
+	/*
+	 * Condition parameter.
+	 */
 	/** The resource file extension to check. */
-	private final String fileExtension;
+	@ConfigurationParameter(isRequired = true)
+	public String fileExtension;
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param fileExtension
-	 *            The resource file extension to check.
 	 */
-	public ResourceFileExtensionFilter(String fileExtension) {
-		this.fileExtension = fileExtension;
+	public ResourceFileExtensionFilter() {
 	}
 
 	@Override

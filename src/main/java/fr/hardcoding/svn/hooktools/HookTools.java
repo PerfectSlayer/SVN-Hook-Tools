@@ -1,5 +1,11 @@
 package fr.hardcoding.svn.hooktools;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 import fr.hardcoding.svn.hooktools.configuration.RuleSet;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 import fr.hardcoding.svn.hooktools.hook.HookFactory;
@@ -12,6 +18,24 @@ import fr.hardcoding.svn.hooktools.hook.HookType;
  * 
  */
 public class HookTools {
+	/** The application logger. */
+	public static final Logger LOGGER = Logger.getLogger(HookTools.class.getName());
+
+	/*
+	 * Configure loggers.
+	 */
+	static {
+		// Load logging configuration file
+		// TODO fix path
+		try (FileInputStream fileInputStream = new FileInputStream("F:/Programmation/Java/svnhooktools/config/logging.properties")) {
+			LogManager logManager = LogManager.getLogManager();
+			// Apply logging configuration
+			logManager.readConfiguration(fileInputStream);
+		} catch (IOException exception) {
+			HookTools.LOGGER.log(Level.WARNING, "Unable to configure loggers.", exception);
+		}
+	}
+
 	/**
 	 * The main procedure.
 	 * 
@@ -24,7 +48,8 @@ public class HookTools {
 		 */
 		// Check parameters length
 		if (args.length==0) {
-			System.err.println("Missing hook name parameter.");
+			// Log and exit
+			HookTools.LOGGER.severe("Missing hook name parameter.");
 			System.exit(-1);
 		}
 
@@ -32,14 +57,16 @@ public class HookTools {
 		String hookName = args[0];
 		HookType hookType = HookType.fromName(hookName);
 		if (hookType==null) {
-			System.err.println("Unknown hook name: "+hookName+".");
+			// Log and exit
+			HookTools.LOGGER.severe("Unknown hook name: "+hookName+".");
 			System.exit(-1);
 		}
 
 		// Check hook parameter count
 		int hookParameterCount = hookType.getParameterCount();
 		if (args.length<hookParameterCount+1) {
-			System.err.println("Missing hook parameters ("+hookParameterCount+" parameter waited).");
+			// Log and exit
+			HookTools.LOGGER.severe("Missing hook parameters ("+hookParameterCount+" parameter waited).");
 			System.exit(-1);
 		}
 
@@ -48,7 +75,8 @@ public class HookTools {
 		System.arraycopy(args, 1, hookParameters, 0, hookParameterCount);
 		AbstractHook hook = HookFactory.build(hookType, hookParameters);
 		if (hook==null) {
-			System.err.println("Unsupported hook type: "+hookType.name()+".");
+			// Log and exit
+			HookTools.LOGGER.severe("Unsupported hook type: "+hookType.name()+".");
 			System.exit(-1);
 		}
 

@@ -1,6 +1,5 @@
 package fr.hardcoding.svn.hooktools.condition.resource;
 
-
 /**
  * This class represents a resource change.
  * 
@@ -20,12 +19,14 @@ public class ResourceChange {
 	 *            The resource path changed.
 	 * @param operation
 	 *            The resource change operation.
+	 * @param propertyChanged
+	 *            <code>true</code> if the resource properties has changed, <code>false</code> otherwise.
 	 */
 	public ResourceChange(String path, ResourceOperation operation, boolean propertyChanged) {
 		this.path = path;
 		this.operation = operation;
 	}
-	
+
 	/**
 	 * Get the resource path changed.
 	 * 

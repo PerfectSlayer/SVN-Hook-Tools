@@ -1,10 +1,10 @@
 <rule-set>
 	<rule name="Empty commit log">
+		<!-- <condition type="temp" /> -->
 		<condition type="emptyCommitLog" />
 		<action type="error">
-			<paramter name="errorCode">-10</paramter>
-			<paramter name="errorMessage">The commit message could not be empty.
-			</paramter>
+			<parameter name="errorCode">-10</parameter>
+			<parameter name="errorMessage">The commit message could not be empty.</parameter>
 		</action>
 	</rule>
 </rule-set>

@@ -4,8 +4,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,10 +23,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import fr.hardcoding.svn.hooktools.HookTools;
 import fr.hardcoding.svn.hooktools.action.AbstractAction;
-import fr.hardcoding.svn.hooktools.action.ErrorAction;
 import fr.hardcoding.svn.hooktools.condition.AbstractCondition;
-import fr.hardcoding.svn.hooktools.condition.commit.EmptyCommitLogCondition;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 import fr.hardcoding.svn.hooktools.hook.HookType;
 
@@ -31,8 +36,87 @@ import fr.hardcoding.svn.hooktools.hook.HookType;
  * 
  */
 public class RuleSet {
+	/*
+	 * Binding related.
+	 */
+	/** The condition binding map. */
+	private static final Map<String, Class<? extends AbstractCondition>> conditionBindings = new HashMap<>();
+	/** The action binding map. */
+	private static final Map<String, Class<? extends AbstractAction>> actionBindings = new HashMap<>();
+	/** The condition prefix. */
+	private static final String CONDITION_PREFIX = "condition.";
+	/** The action prefix. */
+	private static final String ACTION_PREFIX = "action.";
+	/** The action node name. */
+	private static final String ACTION_NODE_NAME = "action";
+	/** The condition node name. */
+	private static final String CONDITION_NODE_NAME = "condition";
+	/** The parameter node name. */
+	private static final String PARAMETER_NODE_NAME = "parameter";
+	/*
+	 * Rule set related.
+	 */
 	/** The rule collection. */
 	private final List<Rule> rules;
+
+	/*
+	 * Load bindings.
+	 */
+	static {
+		try (FileInputStream bindingsInputStream = new FileInputStream("F:/Programmation/Java/svnhooktools/config/bindings.properties")) {
+			// Load binding properties from configuration file
+			Properties properties = new Properties();
+			properties.load(bindingsInputStream);
+			// Parse each binding
+			for (Object key : properties.keySet()) {
+				// Get binding and class names
+				String bindingName = (String) key;
+				String className = properties.getProperty(bindingName);
+				// Check binding type
+				if (bindingName.startsWith(RuleSet.CONDITION_PREFIX)) {
+					// Get condition name
+					String conditionName = bindingName.substring(RuleSet.CONDITION_PREFIX.length());
+					try {
+						// Load class descriptor
+						Class<?> clazz = Class.forName(className);
+						// Check condition class
+						if (!AbstractCondition.class.isAssignableFrom(clazz)) {
+							HookTools.LOGGER.warning("The condition \""+className+"\" could not be loaded as valid condition class.");
+							continue;
+						}
+						// Add condition class in the bindings
+						RuleSet.conditionBindings.put(conditionName, clazz.asSubclass(AbstractCondition.class));
+					} catch (ClassNotFoundException exception) {
+						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.");
+					}
+				} else if (bindingName.startsWith(RuleSet.ACTION_PREFIX)) {
+					// Get action name
+					String actionName = bindingName.substring(RuleSet.ACTION_PREFIX.length());
+					try {
+						// Load class descriptor
+						Class<?> clazz = Class.forName(className);
+						// Check action class
+						if (!AbstractAction.class.isAssignableFrom(clazz)) {
+							HookTools.LOGGER.warning("The action \""+className+"\" could not be loaded as valid action class.");
+							continue;
+						}
+						// Add condition class in the bindings
+						RuleSet.actionBindings.put(actionName, clazz.asSubclass(AbstractAction.class));
+					} catch (ClassNotFoundException exception) {
+						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.");
+					}
+				}
+			}
+		} catch (FileNotFoundException exception) {
+			// Log and exit
+			HookTools.LOGGER.log(Level.SEVERE, "The bindings configuration file could not be found.", exception);
+			System.exit(-1);
+		} catch (IOException exception) {
+			// Log and exit
+			HookTools.LOGGER.log(Level.SEVERE, "The bindings configuration file could not be found.", exception);
+			System.exit(-1);
+		}
+	}
 
 	/**
 	 * Create rule set from hook type.
@@ -55,23 +139,26 @@ public class RuleSet {
 			// Load each rule of rule set
 			NodeList ruleNodeList = document.getElementsByTagName("rule");
 			for (int i = 0; i<ruleNodeList.getLength(); i++) {
-				// Load and add rule
-				Rule rule = RuleSet.loadRule(ruleNodeList.item(i));
-				if (rule!=null)
+				try {
+					// Load and add rule
+					Rule rule = RuleSet.loadRule(ruleNodeList.item(i));
 					ruleSet.rules.add(rule);
+				} catch (Exception exception) {
+					HookTools.LOGGER.log(Level.WARNING, "Unable to load a rule.", exception);
+				}
 			}
 		} catch (FileNotFoundException exception) {
-			// TODO Auto-generated catch block
-			exception.printStackTrace();
+			// Log and exit
+			HookTools.LOGGER.log(Level.SEVERE, "Unable to find hook \""+hookType.getHookName()+"\" configuration file.", exception);
+			System.exit(-1);
 		} catch (IOException exception) {
-			// TODO Auto-generated catch block
-			exception.printStackTrace();
-		} catch (SAXException exception) {
-			// TODO Auto-generated catch block
-			exception.printStackTrace();
-		} catch (ParserConfigurationException exception) {
-			// TODO Auto-generated catch block
-			exception.printStackTrace();
+			// Log and exit
+			HookTools.LOGGER.log(Level.SEVERE, "Unable to read hook \""+hookType.getHookName()+"\" configuration file.", exception);
+			System.exit(-1);
+		} catch (SAXException|ParserConfigurationException exception) {
+			// Log and exit
+			HookTools.LOGGER.log(Level.SEVERE, "Unable to parse hook \""+hookType.getHookName()+"\" configuration file.", exception);
+			System.exit(-1);
 		}
 		// Return created rule set
 		return ruleSet;
@@ -82,14 +169,16 @@ public class RuleSet {
 	 * 
 	 * @param ruleNode
 	 *            The rule configuration node to load.
-	 * @return The loaded rule, <code>null</code> if the rule could not be loaded.
+	 * @return The loaded rule.
+	 * @throws Exception
+	 *             Throws exception if the rule could not be loaded.
 	 */
-	private static Rule loadRule(Node ruleNode) {
+	private static Rule loadRule(Node ruleNode) throws Exception {
 		// Get rule name
 		NamedNodeMap namedNodeMap = ruleNode.getAttributes();
 		Node nameAttributeNode = namedNodeMap.getNamedItem("name");
 		if (nameAttributeNode==null)
-			return null;
+			throw new Exception("The rule is missing name.");
 		String ruleName = nameAttributeNode.getNodeValue();
 		// Create rule
 		Rule rule = new Rule(ruleName);
@@ -98,12 +187,12 @@ public class RuleSet {
 		for (int i = 0; i<childNodeList.getLength(); i++) {
 			Node childNode = childNodeList.item(i);
 			switch (childNode.getNodeName()) {
-				case "condition":
+				case RuleSet.CONDITION_NODE_NAME:
 					AbstractCondition condition = RuleSet.loadCondition(childNode);
 					if (condition!=null)
 						rule.setCondition(condition);
 					break;
-				case "action":
+				case RuleSet.ACTION_NODE_NAME:
 					AbstractAction action = RuleSet.loadAction(childNode);
 					if (action!=null)
 						rule.addAction(action);
@@ -120,28 +209,34 @@ public class RuleSet {
 	 * @param conditionNode
 	 *            The condition configuration node to load.
 	 * @return The loaded condition, <code>null</code> if the condition could not be loaded.
+	 * @throws Exception
+	 *             Throws exception if the condition could not be loaded.
 	 */
-	private static AbstractCondition loadCondition(Node conditionNode) {
+	private static AbstractCondition loadCondition(Node conditionNode) throws Exception {
 		// Get the condition type
 		NamedNodeMap namedNodeMap = conditionNode.getAttributes();
 		Node typeAttributeNode = namedNodeMap.getNamedItem("type");
 		if (typeAttributeNode==null)
 			return null;
 		String conditionType = typeAttributeNode.getNodeValue();
-		// Instantiate condition
+		// Declare condition
 		AbstractCondition condition = null;
-		// TODO Use alias definition
-		switch (conditionType) {
-			case "emptyCommitLog":
-				condition = new EmptyCommitLogCondition();
-				break;
-			default:
-				return null;
+		try {
+			// Create condition instance
+			Class<? extends AbstractCondition> conditionClass = RuleSet.conditionBindings.get(conditionType);
+			if (conditionClass==null)
+				throw new Exception("The condition named \""+conditionType+"\" is not bound.\"");
+			condition = conditionClass.newInstance();
+			// Apply condition parameters
+			RuleSet.applyParameters(conditionNode, condition);
+		} catch (InstantiationException exception) {
+			throw new Exception("Unable to instantiate condition \""+conditionType+"\".", exception);
+		} catch (IllegalAccessException exception) {
+			throw new Exception("Unable to instantiate condition \""+conditionType+"\".", exception);
 		}
-		// TODO param
 		// TODO operator
 		// Return loaded condition
-		return condition;
+		return null;
 	}
 
 	/**
@@ -150,27 +245,125 @@ public class RuleSet {
 	 * @param actionNode
 	 *            The action configuration node to load.
 	 * @return The loaded action, <code>null</code> if the action could not be loaded.
+	 * @throws Exception
+	 *             Throws exception if the action could not be loaded.
 	 */
-	private static AbstractAction loadAction(Node actionNode) {
+	private static AbstractAction loadAction(Node actionNode) throws Exception {
 		// Get the action type
 		NamedNodeMap namedNodeMap = actionNode.getAttributes();
 		Node typeAttributNode = namedNodeMap.getNamedItem("type");
 		if (typeAttributNode==null)
 			return null;
 		String actionType = typeAttributNode.getNodeValue();
-		// Instantiate action
+		// Declare action
 		AbstractAction action = null;
-		// TODO Use alias definition
-		switch (actionType) {
-			case "error":
-				action = new ErrorAction();
-				break;
-			default:
-				return null;
+		try {
+			// Create condition instance
+			Class<? extends AbstractAction> actionClass = RuleSet.actionBindings.get(actionType);
+			if (actionClass==null)
+				throw new Exception("The action named \""+actionType+"\" is not bound.\"");
+			action = actionClass.newInstance();
+			// Apply condition parameters
+			RuleSet.applyParameters(actionNode, action);
+		} catch (InstantiationException exception) {
+			throw new Exception("Unable to instantiate action \""+actionType+"\".", exception);
+		} catch (IllegalAccessException exception) {
+			throw new Exception("Unable to instantiate action \""+actionType+"\".", exception);
 		}
-		// TODO param
-		// Return load action
+		// Return loaded action
 		return action;
+	}
+
+	/**
+	 * Apply parameter to loaded object.
+	 * 
+	 * @param node
+	 *            The loaded object node.
+	 * @param loaded
+	 *            The loaded object.
+	 * @throws Exception
+	 *             Throws exception if parameters could not be applied.
+	 */
+	private static void applyParameters(Node node, Object loaded) throws Exception {
+		// Parse node parameters
+		Map<String, String> parameters = new HashMap<>();
+		// Process each child node
+		NodeList childNodes = node.getChildNodes();
+		for (int i = 0; i<childNodes.getLength(); i++) {
+			// Get next child node
+			Node childNode = childNodes.item(i);
+			// Check node name
+			if (!childNode.getNodeName().equals(RuleSet.PARAMETER_NODE_NAME))
+				continue;
+			// Get parameter node attributes
+			NamedNodeMap namedNodeMap = childNode.getAttributes();
+			// Get name attribute node
+			Node nameAttributeNode = namedNodeMap.getNamedItem("name");
+			if (nameAttributeNode==null) {
+				HookTools.LOGGER.warning("A parameter is badly defined.");
+				continue;
+			}
+			// Get node text content
+			String value = childNode.getTextContent();
+			if (value == null || value.trim().isEmpty()) {
+				HookTools.LOGGER.warning("The parameter \""+nameAttributeNode.getNodeValue()+"\" is badly defined.");
+				continue;
+			}
+			// Add parsed parameter
+			parameters.put(nameAttributeNode.getNodeValue(), value);
+		}
+
+		// Get loaded class
+		Class<?> loadedClass = loaded.getClass();
+		// Check each field of loaded class
+		for (Field field : loadedClass.getFields()) {
+			// Declare parameter status and annotation
+			boolean isParameter = false;
+			ConfigurationParameter configurationParameter = null;
+			// Check each field annotation
+			for (Annotation annotation : field.getAnnotations()) {
+				// Check annotation type
+				if (!ConfigurationParameter.class.isAssignableFrom(annotation.annotationType()))
+					continue;
+				// Mark field as parameter
+				isParameter = true;
+				// Save parameter annotation
+				configurationParameter = (ConfigurationParameter) annotation;
+				// Skip other annotations
+				break;
+			}
+			// Skip field if not parameter
+			if (!isParameter)
+				continue;
+			// Get parameter name
+			String parameterName = field.getName();
+			String parameterValue = parameters.get(parameterName);
+			// Check parameter definition
+			if (parameterValue==null&&configurationParameter.isRequired())
+				throw new Exception("The parameter \""+parameterName+"\" is not set.");
+			// Apply parameter value
+			try {
+				Class<?> parameterType = field.getType();
+				if (boolean.class.isAssignableFrom(parameterType)) {
+					field.setBoolean(loaded, Boolean.parseBoolean(parameterValue));
+				} else if (Boolean.class.isAssignableFrom(parameterType)) {
+					field.set(loaded, Boolean.parseBoolean(parameterValue));
+				} else if (int.class.isAssignableFrom(parameterType)) {
+					field.setInt(loaded, Integer.parseInt(parameterValue));
+				} else if (Integer.class.isAssignableFrom(parameterType)) {
+					field.set(loaded, Integer.parseInt(parameterValue));
+				} else if (String.class.isAssignableFrom(parameterType)) {
+					field.set(loaded, parameterValue);
+				} else {
+					HookTools.LOGGER.warning("The parameter type \""+parameterType.getName()+"\" is not suppported.");
+				}
+				// TODO Support other types
+			} catch (IllegalArgumentException exception) {
+				throw new Exception("Unable to set parameter \""+parameterName+"\".", exception);
+			} catch (IllegalAccessException exception) {
+				throw new Exception("Unable to set parameter \""+parameterName+"\".", exception);
+			}
+		}
 	}
 
 	/**

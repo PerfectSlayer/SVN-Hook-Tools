@@ -10,17 +10,16 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public class ResourceFileNameFilter extends AbstractResourceFilter {
+	/*
+	 * Condition parameter.
+	 */
 	/** The resource file name to check. */
-	private final String fileName;
+	public String fileName;
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param filename
-	 *            The resource file name to check.
 	 */
-	public ResourceFileNameFilter(String filename) {
-		this.fileName = filename;
+	public ResourceFileNameFilter() {
 	}
 
 	@Override
