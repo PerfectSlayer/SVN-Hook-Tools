@@ -46,7 +46,7 @@ public class ResourceLocation {
 		String branchName = null;
 		String tagName = null;
 		// Check root location
-		if (parts.length==0)
+		if (parts.length<=1)
 			locationType = ResourceLocationType.ROOT_LOCATION;
 		// Check if location type is not defined
 		if (locationType==null) {
@@ -65,19 +65,21 @@ public class ResourceLocation {
 			// Check if location type is identified
 			if (locationType!=null) {
 				// Check project name
-				if (nbrOfParts>1)
+				if (nbrOfParts>2)
 					projectName = parts[nbrOfParts-2];
 			}
 		}
 		// Check if location type is not defined
 		if (locationType==null) {
 			// Check in branch and tag location
-			if (nbrOfParts>1) {
+			if (nbrOfParts>2) {
 				switch (parts[nbrOfParts-2]) {
 					case ResourceLocation.BRANCHES_LOCATION_NAME:
 						locationType = ResourceLocationType.A_BRANCH_LOCATION;
+						break;
 					case ResourceLocation.TAGS_LOCATION_NAME:
 						locationType = ResourceLocationType.A_TAG_LOCATION;
+						break;
 				}
 				// Check if location type is identified
 				if (locationType!=null) {
@@ -92,7 +94,7 @@ public class ResourceLocation {
 							break;
 					}
 					// Check project name
-					if (nbrOfParts>2)
+					if (nbrOfParts>3)
 						projectName = parts[nbrOfParts-3];
 					// Return resource location
 					return new ResourceLocation(locationType, projectName, branchName, tagName);
@@ -102,33 +104,33 @@ public class ResourceLocation {
 		// Check if location type is not defined
 		if (locationType==null) {
 			// Check trunk, branch or tag in location
-			for (int i = 0; i<nbrOfParts-2; i++) {
+			for (int i = 1; i<=nbrOfParts-2; i++) {
 				// Check part with known location name
 				switch (parts[i]) {
 					case ResourceLocation.TRUNK_LOCATION_NAME:
-						locationType = ResourceLocationType.TRUNK_LOCATION;
+						locationType = ResourceLocationType.IN_TRUNK_LOCATION;
 						break;
 					case ResourceLocation.BRANCHES_LOCATION_NAME:
-						locationType = ResourceLocationType.BRANCHES_LOCATION;
+						locationType = ResourceLocationType.IN_A_BRANCH_LOCATION;
 						break;
 					case ResourceLocation.TAGS_LOCATION_NAME:
-						locationType = ResourceLocationType.TAGS_LOCATION;
+						locationType = ResourceLocationType.IN_A_TAG_LOCATION;
 						break;
 				}
 				// Check if location is still not defined
 				if (locationType==null)
 					continue;
 				// Check project name
-				if (i>0)
+				if (i>1)
 					projectName = parts[i-1];
 				// Get branch or tag name
 				if (i<nbrOfParts-1) {
 					switch (locationType) {
-						case A_BRANCH_LOCATION:
+						case IN_A_BRANCH_LOCATION:
 							branchName = parts[i+1];
 							break;
 						default:
-						case A_TAG_LOCATION:
+						case IN_A_TAG_LOCATION:
 							tagName = parts[i+1];
 							break;
 					}
@@ -142,7 +144,7 @@ public class ResourceLocation {
 			// Apply default location type
 			locationType = ResourceLocationType.IN_ROOT_LOCATION;
 		// Return created resource location
-		return new ResourceLocation(ResourceLocationType.IN_ROOT_LOCATION, projectName, branchName, tagName);
+		return new ResourceLocation(locationType, projectName, branchName, tagName);
 	}
 
 	/**

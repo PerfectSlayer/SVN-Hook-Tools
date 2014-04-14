@@ -15,10 +15,10 @@ public class ErrorAction extends AbstractAction {
 	 */
 	/** The error code. */
 	@ConfigurationParameter(isRequired = true)
-	public int errorCode;
+	public int code;
 	/** The error message. */
 	@ConfigurationParameter()
-	public String errorMessage;
+	public String message;
 
 	/**
 	 * Constructor.
@@ -29,10 +29,10 @@ public class ErrorAction extends AbstractAction {
 	@Override
 	public boolean perform(AbstractHook hook) {
 		// Check error message
-		if (this.errorMessage!=null)
-			hook.sendErrorMessage(this.errorMessage);
+		if (this.message!=null)
+			hook.sendErrorMessage(this.message);
 		// Set error code
-		hook.setErrorCode(this.errorCode);
+		hook.setErrorCode(this.code);
 		// Continue the remaining rule actions
 		return false;
 	}

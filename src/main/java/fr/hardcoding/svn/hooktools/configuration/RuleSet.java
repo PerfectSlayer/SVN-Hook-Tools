@@ -26,6 +26,8 @@ import org.xml.sax.SAXException;
 import fr.hardcoding.svn.hooktools.HookTools;
 import fr.hardcoding.svn.hooktools.action.AbstractAction;
 import fr.hardcoding.svn.hooktools.condition.AbstractCondition;
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceCondition;
+import fr.hardcoding.svn.hooktools.condition.resource.filter.AbstractResourceFilter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 import fr.hardcoding.svn.hooktools.hook.HookType;
 
@@ -41,16 +43,28 @@ public class RuleSet {
 	 */
 	/** The condition binding map. */
 	private static final Map<String, Class<? extends AbstractCondition>> conditionBindings = new HashMap<>();
+	/** The resource filter binding map. */
+	private static final Map<String, Class<? extends AbstractResourceFilter>> resourceFilterBindings = new HashMap<>();
 	/** The action binding map. */
 	private static final Map<String, Class<? extends AbstractAction>> actionBindings = new HashMap<>();
+	/*
+	 * Binding name prefixes.
+	 */
 	/** The condition prefix. */
 	private static final String CONDITION_PREFIX = "condition.";
+	/** The resource filter prefix. */
+	private static final String RESOURCE_FILTER_PREFIX = "resourceFilter.";
 	/** The action prefix. */
 	private static final String ACTION_PREFIX = "action.";
+	/*
+	 * Node names.
+	 */
 	/** The action node name. */
 	private static final String ACTION_NODE_NAME = "action";
 	/** The condition node name. */
 	private static final String CONDITION_NODE_NAME = "condition";
+	/** The filter node name. */
+	private static final String FILTER_NODE_NAME = "filter";
 	/** The parameter node name. */
 	private static final String PARAMETER_NODE_NAME = "parameter";
 	/*
@@ -86,6 +100,22 @@ public class RuleSet {
 						}
 						// Add condition class in the bindings
 						RuleSet.conditionBindings.put(conditionName, clazz.asSubclass(AbstractCondition.class));
+					} catch (ClassNotFoundException exception) {
+						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.");
+					}
+				} else if (bindingName.startsWith(RuleSet.RESOURCE_FILTER_PREFIX)) {
+					// Get filter name
+					String filterName = bindingName.substring(RuleSet.RESOURCE_FILTER_PREFIX.length());
+					try {
+						// Load class descriptor
+						Class<?> clazz = Class.forName(className);
+						// Check filter class
+						if (!AbstractResourceFilter.class.isAssignableFrom(clazz)) {
+							HookTools.LOGGER.warning("The filter \""+className+"\" could not be loaded as valid resource condition filter class.");
+							continue;
+						}
+						// Add filter class in the bindings
+						RuleSet.resourceFilterBindings.put(filterName, clazz.asSubclass(AbstractResourceFilter.class));
 					} catch (ClassNotFoundException exception) {
 						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.");
 					}
@@ -189,13 +219,11 @@ public class RuleSet {
 			switch (childNode.getNodeName()) {
 				case RuleSet.CONDITION_NODE_NAME:
 					AbstractCondition condition = RuleSet.loadCondition(childNode);
-					if (condition!=null)
-						rule.setCondition(condition);
+					rule.setCondition(condition);
 					break;
 				case RuleSet.ACTION_NODE_NAME:
 					AbstractAction action = RuleSet.loadAction(childNode);
-					if (action!=null)
-						rule.addAction(action);
+					rule.addAction(action);
 					break;
 			}
 		}
@@ -208,7 +236,7 @@ public class RuleSet {
 	 * 
 	 * @param conditionNode
 	 *            The condition configuration node to load.
-	 * @return The loaded condition, <code>null</code> if the condition could not be loaded.
+	 * @return The loaded condition.
 	 * @throws Exception
 	 *             Throws exception if the condition could not be loaded.
 	 */
@@ -217,26 +245,77 @@ public class RuleSet {
 		NamedNodeMap namedNodeMap = conditionNode.getAttributes();
 		Node typeAttributeNode = namedNodeMap.getNamedItem("type");
 		if (typeAttributeNode==null)
-			return null;
+			throw new Exception("A condition is missing type attribute.");
 		String conditionType = typeAttributeNode.getNodeValue();
-		// Declare condition
-		AbstractCondition condition = null;
 		try {
 			// Create condition instance
 			Class<? extends AbstractCondition> conditionClass = RuleSet.conditionBindings.get(conditionType);
 			if (conditionClass==null)
-				throw new Exception("The condition named \""+conditionType+"\" is not bound.\"");
-			condition = conditionClass.newInstance();
+				throw new Exception("The condition named \""+conditionType+"\" is not bound.");
+			AbstractCondition condition = conditionClass.newInstance();
 			// Apply condition parameters
 			RuleSet.applyParameters(conditionNode, condition);
+			// Check resource condition
+			if (ResourceCondition.class.isInstance(condition)) {
+				// Get resource condition
+				ResourceCondition resourceCondition = (ResourceCondition) condition;
+				// Check each filter child node
+				NodeList childNodes = conditionNode.getChildNodes();
+				for (int i = 0; i<childNodes.getLength(); i++) {
+					// Check filter child node
+					Node childNode = childNodes.item(i);
+					if (!childNode.getNodeName().equals(RuleSet.FILTER_NODE_NAME))
+						continue;
+					try {
+						// Load and add resource filter to resource condition
+						AbstractResourceFilter resourceFilter = RuleSet.loadResourceFilter(childNode);
+						resourceCondition.addResourceFilter(resourceFilter);
+					} catch (Exception exception) {
+						throw new Exception("Unable to load resource filter.", exception);
+					}
+				}
+			}
+			// Return loaded condition
+			return condition;
 		} catch (InstantiationException exception) {
 			throw new Exception("Unable to instantiate condition \""+conditionType+"\".", exception);
 		} catch (IllegalAccessException exception) {
 			throw new Exception("Unable to instantiate condition \""+conditionType+"\".", exception);
 		}
 		// TODO operator
-		// Return loaded condition
-		return null;
+	}
+
+	/**
+	 * Load resource filter from filter configuration node.
+	 * 
+	 * @param filterNode
+	 *            The filter configuration node to load.
+	 * @return The loaded filter.
+	 * @throws Exception
+	 *             Throws exception if the filter could not be loaded.
+	 */
+	private static AbstractResourceFilter loadResourceFilter(Node filterNode) throws Exception {
+		// Get the filter type
+		NamedNodeMap namedNodeMap = filterNode.getAttributes();
+		Node typeAttribudeNode = namedNodeMap.getNamedItem("type");
+		if (typeAttribudeNode==null)
+			throw new Exception("A filter is missing type attribute");
+		String filterType = typeAttribudeNode.getNodeValue();
+		try {
+			// Create filter instance
+			Class<? extends AbstractResourceFilter> filterClass = RuleSet.resourceFilterBindings.get(filterType);
+			if (filterClass==null)
+				throw new Exception("The filter named \""+filterType+"\" is not bound.");
+			AbstractResourceFilter filter = filterClass.newInstance();
+			// Apply filter parameters
+			RuleSet.applyParameters(filterNode, filter);
+			// Return loaded filter
+			return filter;
+		} catch (InstantiationException exception) {
+			throw new Exception("Unable to instantiate filter \""+filterType+"\".", exception);
+		} catch (IllegalAccessException exception) {
+			throw new Exception("Unable to instantiate filter \""+filterType+"\".", exception);
+		}
 	}
 
 	/**
@@ -244,7 +323,7 @@ public class RuleSet {
 	 * 
 	 * @param actionNode
 	 *            The action configuration node to load.
-	 * @return The loaded action, <code>null</code> if the action could not be loaded.
+	 * @return The loaded action.
 	 * @throws Exception
 	 *             Throws exception if the action could not be loaded.
 	 */
@@ -253,25 +332,23 @@ public class RuleSet {
 		NamedNodeMap namedNodeMap = actionNode.getAttributes();
 		Node typeAttributNode = namedNodeMap.getNamedItem("type");
 		if (typeAttributNode==null)
-			return null;
+			throw new Exception("An action is missing type attribute.");
 		String actionType = typeAttributNode.getNodeValue();
-		// Declare action
-		AbstractAction action = null;
 		try {
 			// Create condition instance
 			Class<? extends AbstractAction> actionClass = RuleSet.actionBindings.get(actionType);
 			if (actionClass==null)
 				throw new Exception("The action named \""+actionType+"\" is not bound.\"");
-			action = actionClass.newInstance();
+			AbstractAction action = actionClass.newInstance();
 			// Apply condition parameters
 			RuleSet.applyParameters(actionNode, action);
+			// Return loaded action
+			return action;
 		} catch (InstantiationException exception) {
 			throw new Exception("Unable to instantiate action \""+actionType+"\".", exception);
 		} catch (IllegalAccessException exception) {
 			throw new Exception("Unable to instantiate action \""+actionType+"\".", exception);
 		}
-		// Return loaded action
-		return action;
 	}
 
 	/**
@@ -305,7 +382,7 @@ public class RuleSet {
 			}
 			// Get node text content
 			String value = childNode.getTextContent();
-			if (value == null || value.trim().isEmpty()) {
+			if (value==null||value.trim().isEmpty()) {
 				HookTools.LOGGER.warning("The parameter \""+nameAttributeNode.getNodeValue()+"\" is badly defined.");
 				continue;
 			}
@@ -335,12 +412,17 @@ public class RuleSet {
 			// Skip field if not parameter
 			if (!isParameter)
 				continue;
-			// Get parameter name
+			// Get parameter name and value
 			String parameterName = field.getName();
 			String parameterValue = parameters.get(parameterName);
-			// Check parameter definition
-			if (parameterValue==null&&configurationParameter.isRequired())
-				throw new Exception("The parameter \""+parameterName+"\" is not set.");
+			// Check parameter value
+			if (parameterValue==null) {
+				// Check parameter definition
+				if (configurationParameter.isRequired())
+					throw new Exception("The parameter \""+parameterName+"\" is not set.");
+				// Skip parameter
+				continue;
+			}
 			// Apply parameter value
 			try {
 				Class<?> parameterType = field.getType();
@@ -354,6 +436,8 @@ public class RuleSet {
 					field.set(loaded, Integer.parseInt(parameterValue));
 				} else if (String.class.isAssignableFrom(parameterType)) {
 					field.set(loaded, parameterValue);
+				} else if (parameterType.isEnum()) {
+					field.set(loaded, Enum.valueOf((Class<Enum>) parameterType, parameterValue));
 				} else {
 					HookTools.LOGGER.warning("The parameter type \""+parameterType.getName()+"\" is not suppported.");
 				}

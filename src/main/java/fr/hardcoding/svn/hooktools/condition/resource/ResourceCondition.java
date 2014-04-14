@@ -9,7 +9,7 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 import fr.hardcoding.svn.hooktools.hook.UnavailableHookDataException;
 
 /**
- * This class is a resource condition which validate if all resource filters valide one change operation.
+ * This class is a resource condition which validate if all resource filters validate one change operation.
  * 
  * @author Perfect Slayer (bruce.bujon@gmail.com)
  * 

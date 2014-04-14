@@ -1,10 +1,20 @@
 <rule-set>
 	<rule name="Empty commit log">
-		<!-- <condition type="temp" /> -->
 		<condition type="emptyCommitLog" />
 		<action type="error">
-			<parameter name="errorCode">-10</parameter>
-			<parameter name="errorMessage">The commit message could not be empty.</parameter>
+			<parameter name="code">-10</parameter>
+			<parameter name="message">The commit message could not be empty.</parameter>
+		</action>
+	</rule>
+	<rule name="Block in trunk modification">
+		<condition type="resource">
+			<filter type="location">
+				<parameter name="type">IN_TRUNK_LOCATION</parameter>
+			</filter>
+		</condition>
+		<action type="error">
+			<parameter name="code">-11</parameter>
+			<parameter name="message">Forbidden to touch trunk.</parameter>
 		</action>
 	</rule>
 </rule-set>
