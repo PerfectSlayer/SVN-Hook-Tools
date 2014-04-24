@@ -1,6 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
+import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
 /**
@@ -11,16 +12,14 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  */
 public class ResourceOperationFilter extends AbstractResourceFilter {
 	/** The operation to check. */
-	private final ResourceOperation operation;
+	@ConfigurationParameter(isRequired = true)
+	public ResourceOperation operation;
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param operation
-	 *            The operation to check.
 	 */
-	public ResourceOperationFilter(ResourceOperation operation) {
-		this.operation = operation;
+	public ResourceOperationFilter() {
+
 	}
 
 	@Override
