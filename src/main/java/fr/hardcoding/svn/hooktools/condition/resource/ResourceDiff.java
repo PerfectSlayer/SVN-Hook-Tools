@@ -13,8 +13,8 @@ import java.util.Map;
 public class ResourceDiff {
 	/** The resource path. */
 	private final String path;
-	/** The resource properties additions. */
-	private final Map<String, String> propertyAdditions;
+	/** The resource properties changes. */
+	private final Map<String, PropertyChange> propertyChanges;
 
 	/**
 	 * Constructor.
@@ -24,7 +24,7 @@ public class ResourceDiff {
 	 */
 	public ResourceDiff(String path) {
 		this.path = path;
-		this.propertyAdditions = new HashMap<>();
+		this.propertyChanges = new HashMap<>();
 	}
 
 	/**
@@ -37,15 +37,17 @@ public class ResourceDiff {
 	}
 
 	/**
-	 * Add a property additions to the resource diff.
+	 * Add a property change to the resource diff.
 	 * 
 	 * @param propertyName
 	 *            The changed property name.
-	 * @param propertyAdditions
-	 *            The property additions.
+	 * @param oldValue
+	 *            The old property value (may be <code>null</code> if added).
+	 * @param newValue
+	 *            The new property value (may be <code>null</code> if deleted).
 	 */
-	public void addPropertyChange(String propertyName, String propertyAdditions) {
-		this.propertyAdditions.put(propertyName, propertyAdditions);
+	public void addPropertyChange(String propertyName, String oldValue, String newValue) {
+		this.propertyChanges.put(propertyName, new PropertyChange(oldValue, newValue));
 	}
 
 	/**
@@ -53,7 +55,56 @@ public class ResourceDiff {
 	 * 
 	 * @return The resources properties changes.
 	 */
-	public Map<String, String> getProperties() {
-		return Collections.unmodifiableMap(this.propertyAdditions);
+	public Map<String, PropertyChange> getProperties() {
+		return Collections.unmodifiableMap(this.propertyChanges);
+	}
+
+	/**
+	 * This class represents a property value change.
+	 * 
+	 * @author Perfect Slayer (bruce.bujon@gmail.com)
+	 * 
+	 */
+	public static class PropertyChange {
+		/** The old property value (may be <code>null</code> if added). */
+		private final String oldValue;
+		/** The new property value (may be <code>null</code> if deleted). */
+		private final String newValue;
+
+		/**
+		 * Constructor.
+		 * 
+		 * @param oldValue
+		 *            The old property value (may be <code>null</code> if added).
+		 * @param newValue
+		 *            The new property value (may be <code>null</code> if deleted).
+		 */
+		public PropertyChange(String oldValue, String newValue) {
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		/**
+		 * Get the old property value.
+		 * 
+		 * @return The old property value (may be <code>null</code> if added).
+		 */
+		public String getOldValue() {
+			return this.oldValue;
+		}
+
+		/**
+		 * Get the new property value.
+		 * 
+		 * @return The new property value (may be <code>null</code> if deleted).
+		 */
+		public String getNewValue() {
+			return this.newValue;
+		}
+
+		@Override
+		public String toString() {
+			return (this.oldValue==null ? "null" : this.oldValue)+">"+(this.newValue==null ? "null" : this.newValue);
+		}
 	}
 }

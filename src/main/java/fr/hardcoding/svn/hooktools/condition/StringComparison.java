@@ -52,15 +52,15 @@ public enum StringComparison {
 			case IS:
 				return base.equals(to);
 			case CONTAINS:
-				return base.indexOf(to)!=-1;
+				return base.contains(to);
 			case MATCHES:
-				return Pattern.compile(to).matcher(base).matches();
+				return Pattern.matches(to, base);
 			case NOT_IS:
 				return !base.equals(to);
 			case NOT_CONTAINS:
-				return base.indexOf(to)==-1;
+				return !base.contains(to);
 			case NOT_MATCHES:
-				return !Pattern.compile(to).matcher(base).matches();
+				return !Pattern.matches(to, base);
 		}
 		// Return comparison not match
 		return false;

@@ -37,7 +37,7 @@ public class DiffTools {
 		// Declare resource diff collection
 		List<ResourceDiff> resourcesDiffs = new ArrayList<>();
 		// Split output diff as lines
-		String[] lines = diffOutput.split("\n");
+		String[] lines = diffOutput.split("\n|\r\n");
 		// Consume diff output line to parse resource diff
 		for (int lineIndex = 0; lineIndex<lines.length; lineIndex++) {
 			// Get the diff output line
@@ -112,57 +112,81 @@ public class DiffTools {
 	private static int parsePropertyChanges(String[] lines, int startLine, ResourceDiff resourceDiff) {
 		// Declare property operation attributes
 		String propertyName = null;
-		String propertyAdditions = null;
+		boolean oldValue = false;
+		boolean newValue = false;
+		String propertyOldValue = null;
+		String propertyNewValue = null;
 		// Consume diff output line to parse property changes
 		for (int lineIndex = startLine+2; lineIndex<lines.length; lineIndex++) {
 			// Get the diff output line
 			String line = lines[lineIndex];
-			// Check end of property operation
-			if (line.trim().isEmpty()) {
+			/*
+			 * Check end of property operation.
+			 */
+			if (line.isEmpty()||line.startsWith(DiffTools.ADDED_ACTION)||line.startsWith(DiffTools.MODIFIED_ACTION)||line.startsWith(DiffTools.DELETED_ACTION)) {
 				// Check if a property operation already was read
-				if (propertyName!=null&&propertyAdditions!=null) {
-					// Add the property operation
-					if (propertyName!=null&&propertyAdditions!=null) {
-						resourceDiff.addPropertyChange(propertyName, propertyAdditions);
-					}
-					// Return consumed lines
-					return lineIndex-startLine;
+				if (propertyName!=null&&(propertyOldValue!=null||propertyNewValue!=null)) {
+					// Add the property change
+					resourceDiff.addPropertyChange(propertyName, propertyOldValue, propertyNewValue);
 				}
-			}
-			// Check property operation declaration
-			if (line.charAt(0)!=' ') {
-				// Check if a property operation already was read
-				if (propertyName!=null&&propertyAdditions!=null) {
-					// Add the property operation
-					resourceDiff.addPropertyChange(propertyName, propertyAdditions);
-					// Reset property operation attributes
-					propertyName = null;
-					propertyAdditions = null;
+				// Reset property operation attributes
+				propertyName = null;
+				oldValue = false;
+				newValue = false;
+				propertyOldValue = null;
+				propertyNewValue = null;
+				// Check end of property changes
+				if (line.isEmpty()) {
+					// Return consumed lines
+					return lineIndex-startLine+1;
 				}
 				// Check property operation declaration
-				if (line.startsWith(DiffTools.ADDED_ACTION)) {
+				else if (line.startsWith(DiffTools.ADDED_ACTION)) {
 					// Get the property name
 					propertyName = line.substring(DiffTools.ADDED_ACTION.length()+1);
 				} else if (line.startsWith(DiffTools.MODIFIED_ACTION)) {
 					// Get the property name
 					propertyName = line.substring(DiffTools.MODIFIED_ACTION.length()+1);
+				} else if (line.startsWith(DiffTools.DELETED_ACTION)) {
+					// Get the property name
+					propertyName = line.substring(DiffTools.DELETED_ACTION.length()+1);
 				}
-				// Skip the line
-				continue;
 			}
-			// Check property addition
-			if (line.startsWith("   + ")) {
-				// Get the property addition
-				String propertyAddition = line.substring(5);
-				// Append the property addition
-				if (propertyAdditions==null) {
-					propertyAdditions = "";
+			/*
+			 * Check property modification.
+			 */
+			else if (line.startsWith("   + ")) {
+				// Mark value as new value
+				oldValue = false;
+				newValue = true;
+				// Strip operator
+				line = line.substring(5);
+			} else if (line.startsWith("   - ")) {
+				// Mark value as old value
+				oldValue = true;
+				newValue = false;
+				// Strip operator
+				line = line.substring(5);
+			}
+			/*
+			 * Append modification value.
+			 */
+			if (oldValue) {
+				// Append the modification to old value
+				if (propertyOldValue==null) {
+					propertyOldValue = "";
 				} else {
-					propertyAddition += "\n";
+					propertyOldValue += System.lineSeparator();
 				}
-				propertyAdditions += propertyAddition;
-				// Skip the line
-				continue;
+				propertyOldValue += line;
+			} else if (newValue) {
+				// Append the modification to new value
+				if (propertyNewValue==null) {
+					propertyNewValue = "";
+				} else {
+					propertyNewValue += System.lineSeparator();
+				}
+				propertyNewValue += line;
 			}
 		}
 		// Return no line consumed (should not come here)

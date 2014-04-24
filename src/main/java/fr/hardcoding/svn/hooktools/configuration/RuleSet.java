@@ -118,7 +118,7 @@ public class RuleSet {
 						// Add filter class in the bindings
 						RuleSet.resourceFilterBindings.put(filterName, clazz.asSubclass(AbstractResourceFilter.class));
 					} catch (ClassNotFoundException exception) {
-						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.");
+						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.", exception);
 					}
 				} else if (bindingName.startsWith(RuleSet.ACTION_PREFIX)) {
 					// Get action name

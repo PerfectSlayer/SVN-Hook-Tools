@@ -235,7 +235,6 @@ public abstract class AbstractHook {
 				if (this.transactionName!=null) {
 					// Get SVN look client
 					SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
-					this.commitChanges = new ArrayList<>();
 					// Get commit changes from transaction
 					svnLookClient.doGetDiff(this.repositoryPath, this.transactionName, true, true, true, byteOutputStream);
 				} else if (this.revisionNumber!=-1) {
