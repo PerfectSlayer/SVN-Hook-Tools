@@ -26,6 +26,7 @@ import org.xml.sax.SAXException;
 import fr.hardcoding.svn.hooktools.HookTools;
 import fr.hardcoding.svn.hooktools.action.AbstractAction;
 import fr.hardcoding.svn.hooktools.condition.AbstractCondition;
+import fr.hardcoding.svn.hooktools.condition.operator.AbtractGroupCondition;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceCondition;
 import fr.hardcoding.svn.hooktools.condition.resource.filter.AbstractResourceFilter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
@@ -255,8 +256,23 @@ public class RuleSet {
 			AbstractCondition condition = conditionClass.newInstance();
 			// Apply condition parameters
 			RuleSet.applyParameters(conditionNode, condition);
-			// Check resource condition
-			if (ResourceCondition.class.isInstance(condition)) {
+			// Check condition type
+			if (AbtractGroupCondition.class.isInstance(condition)) {
+				// Get the group condition
+				AbtractGroupCondition groupCondition = (AbtractGroupCondition) condition;
+				// Get condition child nodes
+				NodeList childNodeList = conditionNode.getChildNodes();
+				// Process each condition child node
+				for (int i = 0; i<childNodeList.getLength(); i++) {
+					// Get child node
+					Node childNode = childNodeList.item(i);
+					// Check child node name
+					if (!childNode.getNodeName().equals(RuleSet.CONDITION_NODE_NAME))
+						continue;
+					// Add child condition to group
+					groupCondition.addCondition(RuleSet.loadCondition(childNode));
+				}
+			} else if (ResourceCondition.class.isInstance(condition)) {
 				// Get resource condition
 				ResourceCondition resourceCondition = (ResourceCondition) condition;
 				// Check each filter child node
