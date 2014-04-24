@@ -219,6 +219,7 @@ public class RuleSet {
 			Node childNode = childNodeList.item(i);
 			switch (childNode.getNodeName()) {
 				case RuleSet.CONDITION_NODE_NAME:
+					// TODO add check if there is already loaded condition
 					AbstractCondition condition = RuleSet.loadCondition(childNode);
 					rule.setCondition(condition);
 					break;
