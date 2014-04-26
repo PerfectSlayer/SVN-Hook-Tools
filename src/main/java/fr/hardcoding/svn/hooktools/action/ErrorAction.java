@@ -4,7 +4,7 @@ import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
 /**
- * This class is an error action. Its sends error message and define error code.
+ * This class is an error action. It sends error message and define error code.
  * 
  * @author Perfect Slayer (bruce.bujon@gmail.com)
  * 
