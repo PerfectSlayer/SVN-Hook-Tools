@@ -78,7 +78,7 @@ public class RuleSet {
 	 * Load bindings.
 	 */
 	static {
-		try (FileInputStream bindingsInputStream = new FileInputStream("F:/Programmation/Java/svnhooktools/config/bindings.properties")) {
+		try (InputStream bindingsInputStream = new FileInputStream("config/bindings.properties")) {
 			// Load binding properties from configuration file
 			Properties properties = new Properties();
 			properties.load(bindingsInputStream);
@@ -160,8 +160,7 @@ public class RuleSet {
 		// Create rule set
 		RuleSet ruleSet = new RuleSet();
 		// Get stream from configuration file
-		// TODO fix configuration path
-		try (InputStream inputStream = new FileInputStream("F:/Programmation/Java/svnhooktools/config/"+hookType.getHookName()+"-rules.xml")) {
+		try (InputStream inputStream = new FileInputStream("config/"+hookType.getHookName()+"-rules.xml")) {
 			// Create a document builder
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();

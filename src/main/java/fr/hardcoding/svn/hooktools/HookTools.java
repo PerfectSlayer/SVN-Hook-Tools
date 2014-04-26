@@ -2,6 +2,7 @@ package fr.hardcoding.svn.hooktools;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -21,21 +22,6 @@ public class HookTools {
 	/** The application logger. */
 	public static final Logger LOGGER = Logger.getLogger(HookTools.class.getName());
 
-	/*
-	 * Configure loggers.
-	 */
-	static {
-		// Load logging configuration file
-		// TODO fix path
-		try (FileInputStream fileInputStream = new FileInputStream("F:/Programmation/Java/svnhooktools/config/logging.properties")) {
-			LogManager logManager = LogManager.getLogManager();
-			// Apply logging configuration
-			logManager.readConfiguration(fileInputStream);
-		} catch (IOException exception) {
-			HookTools.LOGGER.log(Level.WARNING, "Unable to configure loggers.", exception);
-		}
-	}
-
 	/**
 	 * The main procedure.
 	 * 
@@ -43,6 +29,17 @@ public class HookTools {
 	 *            The CLI parameters.
 	 */
 	public static void main(String[] args) {
+		/*
+		 * Configure loggers.
+		 */
+		// Load logging configuration file
+		try (InputStream inputStream = new FileInputStream("config/logging.properties")) {
+			LogManager logManager = LogManager.getLogManager();
+			// Apply logging configuration
+			logManager.readConfiguration(inputStream);
+		} catch (IOException exception) {
+			HookTools.LOGGER.log(Level.WARNING, "Unable to configure loggers.", exception);
+		}
 		/*
 		 * Create hook.
 		 */
