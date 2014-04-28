@@ -46,16 +46,24 @@ public class ResourceCondition extends AbstractCondition {
 			// Invalidate the operation if data are not available
 			return false;
 		}
+		// Check each resource change
 		for (ResourceChange change : changes) {
 			boolean failed = false;
+			// Check each filter on each resource change
 			for (AbstractResourceFilter resourceFilter : this.resourceFilters) {
-				if (!resourceFilter.match(hook, change.getOperation(), change.getPath()))
+				// Check filter on resource change
+				if (!resourceFilter.match(hook, change.getOperation(), change.getPath())) {
+					// Mark check as failed for the resource change
 					failed = true;
-
+					// Stop check for the resource change
+					break;
+				}
 			}
+			// Check if the resource change match
 			if (!failed)
 				return true;
 		}
+		// Return no resource change match
 		return false;
 	}
 }
