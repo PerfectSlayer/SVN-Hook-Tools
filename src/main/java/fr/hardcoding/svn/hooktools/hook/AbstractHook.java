@@ -1,6 +1,8 @@
 package fr.hardcoding.svn.hooktools.hook;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +12,6 @@ import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.admin.ISVNChangeEntryHandler;
 import org.tmatesoft.svn.core.wc.admin.SVNChangeEntry;
 import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
-
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff;
@@ -227,7 +227,7 @@ public abstract class AbstractHook {
 		// Check the commit diffs
 		if (this.commitDiffs==null) {
 			// Create output stream for diff result
-			try (ByteOutputStream byteOutputStream = new ByteOutputStream()) {
+			try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
 				// Check repository path
 				if (this.repositoryPath==null)
 					throw new UnavailableHookDataException("repository path");
@@ -236,17 +236,17 @@ public abstract class AbstractHook {
 					// Get SVN look client
 					SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
 					// Get commit changes from transaction
-					svnLookClient.doGetDiff(this.repositoryPath, this.transactionName, true, true, true, byteOutputStream);
+					svnLookClient.doGetDiff(this.repositoryPath, this.transactionName, true, true, true, byteArrayOutputStream);
 				} else if (this.revisionNumber!=-1) {
 					// TODO Handle revision
 				} else {
 					throw new UnavailableHookDataException("revision / transaction");
 				}
 				// Get diff output from output stream
-				String diffOutput = new String(byteOutputStream.getBytes());
+				String diffOutput = byteArrayOutputStream.toString();
 				// Parse diff output as resource diffs
 				this.commitDiffs = DiffTools.parseDiffs(diffOutput);
-			} catch (SVNException exception) {
+			} catch (SVNException|IOException exception) {
 				throw new UnavailableHookDataException("commit diffs", exception);
 			}
 		}

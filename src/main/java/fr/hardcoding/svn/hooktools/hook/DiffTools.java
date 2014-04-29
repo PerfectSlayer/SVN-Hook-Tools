@@ -37,7 +37,7 @@ public class DiffTools {
 		// Declare resource diff collection
 		List<ResourceDiff> resourcesDiffs = new ArrayList<>();
 		// Split output diff as lines
-		String[] lines = diffOutput.split("\n|\r\n");
+		String[] lines = diffOutput.split("\\r?\\n", -1);
 		// Consume diff output line to parse resource diff
 		for (int lineIndex = 0; lineIndex<lines.length; lineIndex++) {
 			// Get the diff output line
@@ -123,7 +123,8 @@ public class DiffTools {
 			/*
 			 * Check end of property operation.
 			 */
-			if (line.isEmpty()||line.startsWith(DiffTools.ADDED_ACTION)||line.startsWith(DiffTools.MODIFIED_ACTION)||line.startsWith(DiffTools.DELETED_ACTION)) {
+			boolean endOfPropertyChange = DiffTools.isEndOfPropertyChange(lines, lineIndex);
+			if (endOfPropertyChange||line.startsWith(DiffTools.ADDED_ACTION)||line.startsWith(DiffTools.MODIFIED_ACTION)||line.startsWith(DiffTools.DELETED_ACTION)) {
 				// Check if a property operation already was read
 				if (propertyName!=null&&(propertyOldValue!=null||propertyNewValue!=null)) {
 					// Add the property change
@@ -136,7 +137,7 @@ public class DiffTools {
 				propertyOldValue = null;
 				propertyNewValue = null;
 				// Check end of property changes
-				if (line.isEmpty()) {
+				if (endOfPropertyChange) {
 					// Return consumed lines
 					return lineIndex-startLine+1;
 				}
@@ -191,5 +192,40 @@ public class DiffTools {
 		}
 		// Return no line consumed (should not come here)
 		return 0;
+	}
+
+	/**
+	 * Check if it is the end of a property change (ie two empty following lines).
+	 * 
+	 * @param lines
+	 *            The lines to check.
+	 * @param startLine
+	 *            The start line to check.
+	 * @return <code>true</code> if it is the end of a property change, <code>false</code> otherwise.
+	 */
+	private static boolean isEndOfPropertyChange(String[] lines, int startLine) {
+		/*
+		 * Check first line.
+		 */
+		// Check first empty line
+		if (!lines[startLine].isEmpty())
+			return false;
+		/*
+		 * Check second line.
+		 */
+		// Check if second line is available
+		if (lines.length<=startLine)
+			return true;
+		// Check if second line is empty
+		if (!lines[startLine+1].isEmpty())
+			return false;
+		/*
+		 * Check third line (3 empty lines means this is not an end).
+		 */
+		// Check if third line is available
+		if (lines.length>startLine+2)
+			return !lines[startLine+2].isEmpty();
+		// Return as end of property change (two lines are empty and third isn't)
+		return true;
 	}
 }
