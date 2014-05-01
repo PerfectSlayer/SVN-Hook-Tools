@@ -1,6 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import fr.hardcoding.svn.hooktools.condition.AbstractCondition;
@@ -39,9 +40,9 @@ public class ResourceCondition extends AbstractCondition {
 	@Override
 	public boolean check(AbstractHook hook) {
 		// Get the commit changes
-		List<ResourceChange> resourceChanges;
+		Collection<ResourceChange> resourceChanges;
 		try {
-			resourceChanges = hook.getCommitChanges();
+			resourceChanges = hook.getCommitChanges().values();
 		} catch (UnavailableHookDataException exception) {
 			// Invalidate the operation if data are not available
 			return false;

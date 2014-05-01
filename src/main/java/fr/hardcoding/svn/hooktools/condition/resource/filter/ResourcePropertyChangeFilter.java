@@ -4,7 +4,6 @@ import java.util.Map;
 
 import fr.hardcoding.svn.hooktools.condition.StringComparison;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
-import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff.PropertyChange;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
@@ -44,21 +43,18 @@ public class ResourcePropertyChangeFilter extends AbstractResourceFilter {
 	@Override
 	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
 		try {
-			// Check each commit diff
-			for (ResourceDiff resourceDiff : hook.getCommitDiffs()) {	// TODO Called for each resource change !
-				// Check each changed property
-				for (Map.Entry<String, PropertyChange> property : resourceDiff.getProperties().entrySet()) {
-					// Check property name
-					if (!property.getKey().equals(this.name))
-						continue;
-					// Check property value changes
-					PropertyChange propertyChange = property.getValue();
-					boolean oldValue = this.oldValue==null||this.oldValueComparison.compare(propertyChange.getOldValue(), this.oldValue);
-					boolean newValue = this.newValue==null||this.newValueComparison.compare(propertyChange.getNewValue(), this.newValue);
-					// Return property change match if both values match
-					if (oldValue&&newValue)
-						return true;
-				}
+			// Check each changed property
+			for (Map.Entry<String, PropertyChange> property : resourceChange.getDiff().getProperties().entrySet()) {
+				// Check property name
+				if (!property.getKey().equals(this.name))
+					continue;
+				// Check property value changes
+				PropertyChange propertyChange = property.getValue();
+				boolean oldValue = this.oldValue==null||this.oldValueComparison.compare(propertyChange.getOldValue(), this.oldValue);
+				boolean newValue = this.newValue==null||this.newValueComparison.compare(propertyChange.getNewValue(), this.newValue);
+				// Return property change match if both values match
+				if (oldValue&&newValue)
+					return true;
 			}
 			// Return no property change match found
 			return false;

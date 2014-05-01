@@ -3,8 +3,9 @@ package fr.hardcoding.svn.hooktools.hook;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
@@ -47,10 +48,10 @@ public abstract class AbstractHook {
 	protected String commitLog;
 	/** The commit author (<code>null</code> if not available). */
 	protected String commitAuthor;
-	/** The commit changes (<code>null</code> if not available). */
-	protected List<ResourceChange> commitChanges;
-	/** The commit diffs (<code>null</code> if not available). */
-	protected List<ResourceDiff> commitDiffs;
+	/** The commit changes (<code>null</code> if not available, indexed by the change path). */
+	protected Map<String, ResourceChange> commitChanges;
+	/** The commit diff loaded status (<code>true</code> if loaded, <code>false</code> otherwise). */
+	protected boolean commitDiffLoaded;
 
 	/*
 	 * Result related.
@@ -75,6 +76,8 @@ public abstract class AbstractHook {
 		this.revisionNumber = -1;
 		// Set default error code
 		this.errorCode = 0;
+		// Initialize the commit diff loaded status
+		this.commitDiffLoaded = false;
 	}
 
 	/**
@@ -165,7 +168,7 @@ public abstract class AbstractHook {
 	 * @throws UnavailableHookDataException
 	 *             Throws exception if the commit changes could not be retrieved.
 	 */
-	public List<ResourceChange> getCommitChanges() throws UnavailableHookDataException {
+	public Map<String, ResourceChange> getCommitChanges() throws UnavailableHookDataException {
 		// Check the commit changes
 		if (this.commitChanges==null) {
 			try {
@@ -176,7 +179,7 @@ public abstract class AbstractHook {
 				if (this.transactionName!=null) {
 					// Get SVN look client
 					SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
-					this.commitChanges = new ArrayList<>();
+					this.commitChanges = new HashMap<>();
 					// Get commit changes from transaction
 					svnLookClient.doGetChanged(this.repositoryPath, this.transactionName, new ISVNChangeEntryHandler() {
 						@Override
@@ -200,8 +203,9 @@ public abstract class AbstractHook {
 									operation = ResourceOperation.PROPERTY_CHANGED;
 							}
 							// Create and add resource change
-							ResourceChange resourceChange = new ResourceChange(changeEntry.getPath(), operation, changeEntry.hasPropertyModifications());
-							AbstractHook.this.commitChanges.add(resourceChange);
+							ResourceChange resourceChange = new ResourceChange(AbstractHook.this, changeEntry.getPath(), operation, changeEntry
+									.hasPropertyModifications());
+							AbstractHook.this.commitChanges.put(resourceChange.getPath(), resourceChange);
 						}
 					}, true);
 				} else if (this.revisionNumber!=-1) {
@@ -218,41 +222,67 @@ public abstract class AbstractHook {
 	}
 
 	/**
-	 * Get the commit diffs.
+	 * Load the commit diffs.
 	 * 
-	 * @return The commit diffs.
 	 * @throws UnavailableHookDataException
 	 *             Throws exception if the commit diffs could not be retrieved.
 	 */
-	public List<ResourceDiff> getCommitDiffs() throws UnavailableHookDataException {
-		// Check the commit diffs
-		if (this.commitDiffs==null) {
-			// Create output stream for diff result
-			try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-				// Check repository path
-				if (this.repositoryPath==null)
-					throw new UnavailableHookDataException("repository path");
-				// Check transaction name
-				if (this.transactionName!=null) {
-					// Get SVN look client
-					SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
-					// Get commit changes from transaction
-					svnLookClient.doGetDiff(this.repositoryPath, this.transactionName, true, true, true, byteArrayOutputStream);
-				} else if (this.revisionNumber!=-1) {
-					// TODO Handle revision
-				} else {
-					throw new UnavailableHookDataException("revision / transaction");
-				}
-				// Get diff output from output stream
-				String diffOutput = byteArrayOutputStream.toString();
-				// Parse diff output as resource diffs
-				this.commitDiffs = DiffTools.parseDiffs(diffOutput);
-			} catch (SVNException|IOException exception) {
-				throw new UnavailableHookDataException("commit diffs", exception);
+	public void loadCommitDiffs() throws UnavailableHookDataException {
+		// Check if commit diffs was already loaded
+		if (this.commitDiffLoaded)
+			return;
+		// Mark the commit diffs as loaded
+		this.commitDiffLoaded = true;
+		/*
+		 * Load the commit diffs.
+		 */
+		// Declare commit diffs
+		List<ResourceDiff> commitDiffs;
+		// Create output stream for diff result
+		try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+			// Check repository path
+			if (this.repositoryPath==null)
+				throw new UnavailableHookDataException("repository path");
+			// Check transaction name
+			if (this.transactionName!=null) {
+				// Get SVN look client
+				SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
+				// Get commit changes from transaction
+				svnLookClient.doGetDiff(this.repositoryPath, this.transactionName, true, true, true, byteArrayOutputStream);
+			} else if (this.revisionNumber!=-1) {
+				// TODO Handle revision
+			} else {
+				throw new UnavailableHookDataException("revision / transaction");
 			}
+			// Get diff output from output stream
+			String diffOutput = byteArrayOutputStream.toString();
+			// Parse diff output as resource diffs
+			commitDiffs = DiffTools.parseDiffs(diffOutput);
+		} catch (SVNException|IOException exception) {
+			throw new UnavailableHookDataException("commit diffs", exception);
 		}
-		// Return the commit diffs
-		return this.commitDiffs;
+		/*
+		 * Update the commit changes.
+		 */
+		// Get the commit changes
+		Map<String, ResourceChange> commitChanges = this.getCommitChanges();
+		// Apply each commit diff
+		for (ResourceDiff resourceDiff : commitDiffs) {
+			// Get related commit change
+			ResourceChange commitChange = commitChanges.get("/"+resourceDiff.getPath());
+			if (commitChange==null)
+				continue;
+			// Apply commit diff to change
+			commitChange.setDiff(resourceDiff);
+		}
+		// Ensure each commit change has a diff
+		for (ResourceChange resourceChange : this.commitChanges.values()) {
+			// Check if commit change has a diff
+			if (resourceChange.getDiff()!=null)
+				continue;
+			// Set empty diff
+			resourceChange.setDiff(new ResourceDiff(resourceChange.getPath()));
+		}
 	}
 
 	/**

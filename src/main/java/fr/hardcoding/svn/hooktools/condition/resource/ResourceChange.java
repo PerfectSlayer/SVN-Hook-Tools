@@ -1,5 +1,8 @@
 package fr.hardcoding.svn.hooktools.condition.resource;
 
+import fr.hardcoding.svn.hooktools.hook.AbstractHook;
+import fr.hardcoding.svn.hooktools.hook.UnavailableHookDataException;
+
 /**
  * This class represents a resource change.
  * 
@@ -7,16 +10,22 @@ package fr.hardcoding.svn.hooktools.condition.resource;
  * 
  */
 public class ResourceChange {
+	/** The related hook. */
+	private final AbstractHook hook;
 	/** The resource path changed. */
 	private final String path;
 	/** The resource change operation. */
 	private final ResourceOperation operation;
 	/** The resource properties change status (<code>true</code> if the resource properties have changed, <code>false</code> otherwise). */
 	private final boolean propertiesChanged;
+	/** The resource diff (<code>null</code> until loaded, lazy loaded). */
+	private ResourceDiff diff;
 
 	/**
 	 * Constructor.
 	 * 
+	 * @param hook
+	 *            The related hook.
 	 * @param path
 	 *            The resource path changed.
 	 * @param operation
@@ -24,7 +33,8 @@ public class ResourceChange {
 	 * @param propertyChanged
 	 *            <code>true</code> if the resource properties have changed, <code>false</code> otherwise.
 	 */
-	public ResourceChange(String path, ResourceOperation operation, boolean propertyChanged) {
+	public ResourceChange(AbstractHook hook, String path, ResourceOperation operation, boolean propertyChanged) {
+		this.hook = hook;
 		this.path = path;
 		this.operation = operation;
 		this.propertiesChanged = propertyChanged;
@@ -55,5 +65,33 @@ public class ResourceChange {
 	 */
 	public boolean isPropertiesChanged() {
 		return this.propertiesChanged;
+	}
+
+	/**
+	 * Get the resource diff.<br>
+	 * The resource diff will be loaded at the first access.
+	 * 
+	 * @return The resource diff.
+	 * @throws UnavailableHookDataException
+	 *             Throws exception if diff could not be retrieved.
+	 */
+	public ResourceDiff getDiff() throws UnavailableHookDataException {
+		// Check if resource diff is defined
+		if (this.diff==null) {
+			// Load commit diffs
+			this.hook.loadCommitDiffs();
+		}
+		// Return resource diff
+		return this.diff;
+	}
+
+	/**
+	 * Set the resource diff.
+	 * 
+	 * @param diff
+	 *            The resource diff to set.
+	 */
+	public void setDiff(ResourceDiff diff) {
+		this.diff = diff;
 	}
 }
