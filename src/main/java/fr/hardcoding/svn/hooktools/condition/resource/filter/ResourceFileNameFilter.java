@@ -1,6 +1,6 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
-import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
 /**
@@ -23,8 +23,8 @@ public class ResourceFileNameFilter extends AbstractResourceFilter {
 	}
 
 	@Override
-	public boolean match(AbstractHook hook, ResourceOperation operation, String path) {
+	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
 		// Check file name
-		return this.getFileName(path).equals(this.fileName);
+		return this.getFileName(resourceChange.getPath()).equals(this.fileName);
 	}
 }

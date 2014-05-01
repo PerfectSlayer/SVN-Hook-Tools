@@ -1,6 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
-import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
+import fr.hardcoding.svn.hooktools.condition.StringComparison;
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
@@ -17,22 +18,25 @@ public class ResourceFileExtensionFilter extends AbstractResourceFilter {
 	/** The resource file extension to check. */
 	@ConfigurationParameter(isRequired = true)
 	public String fileExtension;
+	/** The resource file extension comparison. */
+	public StringComparison fileExtensionComparison;
 
 	/**
 	 * Constructor.
 	 */
 	public ResourceFileExtensionFilter() {
+		// Set default file extension comparison
+		this.fileExtensionComparison = StringComparison.IS;
 	}
 
 	@Override
-	public boolean match(AbstractHook hook, ResourceOperation operation, String path) {
+	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
 		// Get file extension
-		String fileName = this.getFileName(path);
+		String fileName = this.getFileName(resourceChange.getPath());
 		String fileExtension = this.getFileExtension(fileName);
 		if (fileExtension==null)
-			// Return as invalid if no extension
-			return false;
+			fileExtension = "";
 		// Check file extension
-		return fileExtension.equals(this.fileExtension);
+		return this.fileExtensionComparison.compare(fileExtension, this.fileExtension);
 	}
 }

@@ -1,9 +1,9 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
 import fr.hardcoding.svn.hooktools.condition.StringComparison;
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceLocation;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceLocationType;
-import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
@@ -57,8 +57,9 @@ public class ResourceLocationFilter extends AbstractResourceFilter {
 	}
 
 	@Override
-	public boolean match(AbstractHook hook, ResourceOperation operation, String path) {
+	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
 		// Get resource location
+		String path = resourceChange.getPath();
 		ResourceLocation location = ResourceLocation.getFromPath(path);
 		// Check location type
 		if (this.type!=null&&location.getLocationType()!=this.type)

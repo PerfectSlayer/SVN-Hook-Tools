@@ -39,20 +39,20 @@ public class ResourceCondition extends AbstractCondition {
 	@Override
 	public boolean check(AbstractHook hook) {
 		// Get the commit changes
-		List<ResourceChange> changes;
+		List<ResourceChange> resourceChanges;
 		try {
-			changes = hook.getCommitChanges();
+			resourceChanges = hook.getCommitChanges();
 		} catch (UnavailableHookDataException exception) {
 			// Invalidate the operation if data are not available
 			return false;
 		}
 		// Check each resource change
-		for (ResourceChange change : changes) {
+		for (ResourceChange resourceChange : resourceChanges) {
 			boolean failed = false;
 			// Check each filter on each resource change
 			for (AbstractResourceFilter resourceFilter : this.resourceFilters) {
 				// Check filter on resource change
-				if (!resourceFilter.match(hook, change.getOperation(), change.getPath())) {
+				if (!resourceFilter.match(hook, resourceChange)) {
 					// Mark check as failed for the resource change
 					failed = true;
 					// Stop check for the resource change

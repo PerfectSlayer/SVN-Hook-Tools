@@ -1,5 +1,6 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
@@ -23,7 +24,7 @@ public class ResourceOperationFilter extends AbstractResourceFilter {
 	}
 
 	@Override
-	public boolean match(AbstractHook hook, ResourceOperation operation, String path) {
-		return this.operation==operation;
+	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
+		return this.operation==resourceChange.getOperation();
 	}
 }

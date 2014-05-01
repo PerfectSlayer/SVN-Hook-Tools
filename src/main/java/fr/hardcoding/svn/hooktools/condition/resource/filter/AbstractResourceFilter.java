@@ -1,6 +1,6 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
-import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
 /**
@@ -15,13 +15,11 @@ public abstract class AbstractResourceFilter {
 	 * 
 	 * @param hook
 	 *            The checking hook.
-	 * @param operation
-	 *            The change operation.
-	 * @param path
-	 *            The changed path.
-	 * @return <code>true</code> if the filter match the operation, <code>false</code> otherwise.
+	 * @param resourceChange
+	 *            The resource change to check.
+	 * @return <code>true</code> if the filter match the change, <code>false</code> otherwise.
 	 */
-	public abstract boolean match(AbstractHook hook, ResourceOperation operation, String path);
+	public abstract boolean match(AbstractHook hook, ResourceChange resourceChange);
 
 	/**
 	 * Get the file name of a path.

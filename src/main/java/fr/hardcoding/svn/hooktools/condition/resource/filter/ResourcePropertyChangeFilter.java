@@ -3,9 +3,9 @@ package fr.hardcoding.svn.hooktools.condition.resource.filter;
 import java.util.Map;
 
 import fr.hardcoding.svn.hooktools.condition.StringComparison;
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff.PropertyChange;
-import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 import fr.hardcoding.svn.hooktools.hook.UnavailableHookDataException;
@@ -42,10 +42,10 @@ public class ResourcePropertyChangeFilter extends AbstractResourceFilter {
 	}
 
 	@Override
-	public boolean match(AbstractHook hook, ResourceOperation operation, String path) {
+	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
 		try {
 			// Check each commit diff
-			for (ResourceDiff resourceDiff : hook.getCommitDiffs()) {
+			for (ResourceDiff resourceDiff : hook.getCommitDiffs()) {	// TODO Called for each resource change !
 				// Check each changed property
 				for (Map.Entry<String, PropertyChange> property : resourceDiff.getProperties().entrySet()) {
 					// Check property name
