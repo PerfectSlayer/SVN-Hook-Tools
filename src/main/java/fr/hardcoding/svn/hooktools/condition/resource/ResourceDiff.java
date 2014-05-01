@@ -66,28 +66,28 @@ public class ResourceDiff {
 	 * 
 	 */
 	public static class PropertyChange {
-		/** The old property value (may be <code>null</code> if added). */
+		/** The old property value. */
 		private final String oldValue;
-		/** The new property value (may be <code>null</code> if deleted). */
+		/** The new property value. */
 		private final String newValue;
 
 		/**
 		 * Constructor.
 		 * 
 		 * @param oldValue
-		 *            The old property value (may be <code>null</code> if added).
+		 *            The old property value.
 		 * @param newValue
-		 *            The new property value (may be <code>null</code> if deleted).
+		 *            The new property value.
 		 */
 		public PropertyChange(String oldValue, String newValue) {
-			this.oldValue = oldValue;
-			this.newValue = newValue;
+			this.oldValue = oldValue==null ? "" : oldValue;
+			this.newValue = newValue==null ? "" : newValue;
 		}
 
 		/**
 		 * Get the old property value.
 		 * 
-		 * @return The old property value (may be <code>null</code> if added).
+		 * @return The old property value.
 		 */
 		public String getOldValue() {
 			return this.oldValue;
@@ -96,7 +96,7 @@ public class ResourceDiff {
 		/**
 		 * Get the new property value.
 		 * 
-		 * @return The new property value (may be <code>null</code> if deleted).
+		 * @return The new property value.
 		 */
 		public String getNewValue() {
 			return this.newValue;
@@ -104,7 +104,7 @@ public class ResourceDiff {
 
 		@Override
 		public String toString() {
-			return (this.oldValue==null ? "null" : this.oldValue)+">"+(this.newValue==null ? "null" : this.newValue);
+			return this.oldValue+">"+this.newValue;
 		}
 	}
 }

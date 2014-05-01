@@ -114,8 +114,8 @@ public class DiffTools {
 		String propertyName = null;
 		boolean oldValue = false;
 		boolean newValue = false;
-		String propertyOldValue = null;
-		String propertyNewValue = null;
+		String propertyOldValue = "";
+		String propertyNewValue = "";
 		// Consume diff output line to parse property changes
 		for (int lineIndex = startLine+2; lineIndex<lines.length; lineIndex++) {
 			// Get the diff output line
@@ -124,9 +124,10 @@ public class DiffTools {
 			 * Check end of property operation.
 			 */
 			boolean endOfPropertyChange = DiffTools.isEndOfPropertyChange(lines, lineIndex);
-			if (endOfPropertyChange||line.startsWith(DiffTools.ADDED_ACTION)||line.startsWith(DiffTools.MODIFIED_ACTION)||line.startsWith(DiffTools.DELETED_ACTION)) {
+			if (endOfPropertyChange||line.startsWith(DiffTools.ADDED_ACTION)||line.startsWith(DiffTools.MODIFIED_ACTION)
+					||line.startsWith(DiffTools.DELETED_ACTION)) {
 				// Check if a property operation already was read
-				if (propertyName!=null&&(propertyOldValue!=null||propertyNewValue!=null)) {
+				if (propertyName!=null&&(!propertyOldValue.isEmpty()||!propertyNewValue.isEmpty())) {
 					// Add the property change
 					resourceDiff.addPropertyChange(propertyName, propertyOldValue, propertyNewValue);
 				}
@@ -134,8 +135,8 @@ public class DiffTools {
 				propertyName = null;
 				oldValue = false;
 				newValue = false;
-				propertyOldValue = null;
-				propertyNewValue = null;
+				propertyOldValue = "";
+				propertyNewValue = "";
 				// Check end of property changes
 				if (endOfPropertyChange) {
 					// Return consumed lines
@@ -174,19 +175,13 @@ public class DiffTools {
 			 */
 			if (oldValue) {
 				// Append the modification to old value
-				if (propertyOldValue==null) {
-					propertyOldValue = "";
-				} else {
+				if (!propertyOldValue.isEmpty())
 					propertyOldValue += System.lineSeparator();
-				}
 				propertyOldValue += line;
 			} else if (newValue) {
 				// Append the modification to new value
-				if (propertyNewValue==null) {
-					propertyNewValue = "";
-				} else {
+				if (!propertyNewValue.isEmpty())
 					propertyNewValue += System.lineSeparator();
-				}
 				propertyNewValue += line;
 			}
 		}
