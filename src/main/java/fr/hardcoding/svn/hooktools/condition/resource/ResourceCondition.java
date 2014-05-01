@@ -39,7 +39,7 @@ public class ResourceCondition extends AbstractCondition {
 	@Override
 	public boolean check(AbstractHook hook) {
 		// Get the commit changes
-		List<ResourceChange> changes = null;
+		List<ResourceChange> changes;
 		try {
 			changes = hook.getCommitChanges();
 		} catch (UnavailableHookDataException exception) {

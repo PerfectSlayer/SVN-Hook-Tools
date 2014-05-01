@@ -11,6 +11,8 @@ public class ResourceChange {
 	private final String path;
 	/** The resource change operation. */
 	private final ResourceOperation operation;
+	/** The resource properties change status (<code>true</code> if the resource properties have changed, <code>false</code> otherwise). */
+	private final boolean propertiesChanged;
 
 	/**
 	 * Constructor.
@@ -20,11 +22,12 @@ public class ResourceChange {
 	 * @param operation
 	 *            The resource change operation.
 	 * @param propertyChanged
-	 *            <code>true</code> if the resource properties has changed, <code>false</code> otherwise.
+	 *            <code>true</code> if the resource properties have changed, <code>false</code> otherwise.
 	 */
 	public ResourceChange(String path, ResourceOperation operation, boolean propertyChanged) {
 		this.path = path;
 		this.operation = operation;
+		this.propertiesChanged = propertyChanged;
 	}
 
 	/**
@@ -43,5 +46,14 @@ public class ResourceChange {
 	 */
 	public ResourceOperation getOperation() {
 		return this.operation;
+	}
+
+	/**
+	 * Check if the resource properties have changed.
+	 * 
+	 * @return <code>true</code> if the resource properties have changed, <code>false</code> otherwise.
+	 */
+	public boolean isPropertiesChanged() {
+		return this.propertiesChanged;
 	}
 }

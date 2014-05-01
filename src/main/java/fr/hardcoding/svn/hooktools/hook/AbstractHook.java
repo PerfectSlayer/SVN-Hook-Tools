@@ -195,6 +195,7 @@ public abstract class AbstractHook {
 									break;
 								case SVNChangeEntry.TYPE_UPDATED:
 									operation = ResourceOperation.UPDATED;
+									break;
 								default:
 									operation = ResourceOperation.PROPERTY_CHANGED;
 							}

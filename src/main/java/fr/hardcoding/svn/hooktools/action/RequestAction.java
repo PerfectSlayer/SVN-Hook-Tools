@@ -64,8 +64,10 @@ public class RequestAction extends AbstractAction {
 			}
 			// Read request answer
 			try (InputStream inputStream = httpConnection.getInputStream(); BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-				while (reader.readLine()!=null) {
-				}
+				String line;
+				do {
+					line = reader.readLine();
+				} while (line!=null);
 			}
 		} catch (IOException exception) {
 			HookTools.LOGGER.log(Level.WARNING, "Unable to perform the request to \""+this.url+"\".", exception);

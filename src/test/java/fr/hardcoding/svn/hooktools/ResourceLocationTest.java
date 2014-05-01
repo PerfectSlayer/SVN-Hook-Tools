@@ -19,7 +19,7 @@ public class ResourceLocationTest extends TestCase {
 		/*
 		 * Test resource location parsing.
 		 */
-		ResourceLocation location = null;
+		ResourceLocation location;
 		location = ResourceLocation.getFromPath("/");
 		Assert.assertEquals(ResourceLocationType.ROOT_LOCATION, location.getLocationType());
 		location = ResourceLocation.getFromPath("/branches");

@@ -73,7 +73,7 @@ public class ResourceLocationFilter extends AbstractResourceFilter {
 			return false;
 		// Check tag name
 		String tagName = location.getTagName();
-		if (this.tagName!=null&&this.tagName!=null&&!this.tagNameComparison.compare(tagName, this.tagName))
+		if (this.tagName!=null&&tagName!=null&&!this.tagNameComparison.compare(tagName, this.tagName))
 			return false;
 		// Check path
 		if (this.path!=null&&!this.pathComparison.compare(path, this.path))

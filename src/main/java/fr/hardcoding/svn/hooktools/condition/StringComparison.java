@@ -32,21 +32,11 @@ public enum StringComparison {
 	 * @return <code>true</code> if the comparison matches, <code>false</code> otherwise.
 	 */
 	public boolean compare(String base, String to) {
-		// Check parameters definition
-		if (base==null) {
-			if (this==IS&&to==null)
-				return true;
-			if (this==NOT_IS&&to!=null)
-				return true;
-			if (this==NOT_CONTAINS||this==NOT_MATCHES)
-				return true;
-			return false;
-		}
-		if (to==null) {
-			if (this==NOT_IS&&base!=null)
-				return true;
-			return false;
-		}
+		// Check parameters
+		if (base==null)
+			throw new IllegalArgumentException("Base parameter could not be null");
+		if (to==null)
+			throw new IllegalArgumentException("To parameter could not be null");
 		// Check comparison operation
 		switch (this) {
 			case IS:
