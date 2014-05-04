@@ -11,12 +11,8 @@ import fr.hardcoding.svn.hooktools.hook.UnavailableHookDataException;
  * 
  */
 public abstract class AbstractCommitLogCondition extends AbstractCondition {
-	/**
-	 * Constructor.
-	 */
-	public AbstractCommitLogCondition() {
-
-	}
+	/** Serialization id. */
+	private static final long serialVersionUID = 1403574120313437225L;
 
 	@Override
 	public boolean check(AbstractHook hook) {

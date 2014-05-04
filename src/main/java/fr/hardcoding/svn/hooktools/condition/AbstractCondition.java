@@ -1,5 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition;
 
+import java.io.Serializable;
+
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
 /**
@@ -8,12 +10,9 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * @author Perfect Slayer (bruce.bujon@gmail.com)
  * 
  */
-public abstract class AbstractCondition {
-	/**
-	 * Constructor.
-	 */
-	public AbstractCondition() {
-	}
+public abstract class AbstractCondition implements Serializable {
+	/** Serialization id. */
+	private static final long serialVersionUID = 1773206780313904465L;
 
 	/**
 	 * Check if the checker validate the operation.

@@ -8,6 +8,9 @@ package fr.hardcoding.svn.hooktools.condition.operator;
  * 
  */
 public class AllCondition extends AbtractGroupCondition {
+	/** Serialization id. */
+	private static final long serialVersionUID = -4449179656860072894L;
+
 	/**
 	 * Constructor.
 	 */

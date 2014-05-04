@@ -12,16 +12,11 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public class ResourceOperationFilter extends AbstractResourceFilter {
+	/** Serialization id. */
+	private static final long serialVersionUID = -3013854579148601946L;
 	/** The operation to check. */
 	@ConfigurationParameter(isRequired = true)
 	public ResourceOperation operation;
-
-	/**
-	 * Constructor.
-	 */
-	public ResourceOperationFilter() {
-
-	}
 
 	@Override
 	public boolean match(AbstractHook hook, ResourceChange resourceChange) {

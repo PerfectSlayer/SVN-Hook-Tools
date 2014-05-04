@@ -13,6 +13,8 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public abstract class AbtractGroupCondition extends AbstractCondition {
+	/** Serialization id. */
+	private static final long serialVersionUID = -2374422239131768067L;
 	/** The condition collection. */
 	protected final List<AbstractCondition> conditions;
 	/** The group condition status. */

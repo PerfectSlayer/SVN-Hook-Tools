@@ -13,6 +13,8 @@ import fr.hardcoding.svn.hooktools.hook.UnavailableHookDataException;
  * 
  */
 public class AuthorCondition extends AbstractCondition {
+	/** Serialization id. */
+	private static final long serialVersionUID = 1345635563075721795L;
 	/** The requested commit author name. */
 	@ConfigurationParameter(isRequired = true)
 	public String name;

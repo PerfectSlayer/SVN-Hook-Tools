@@ -1,5 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
+import java.io.Serializable;
+
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
@@ -9,7 +11,10 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * @author Perfect Slayer (bruce.bujon@gmail.com)
  * 
  */
-public abstract class AbstractResourceFilter {
+public abstract class AbstractResourceFilter implements Serializable {
+	/** Serialization id. */
+	private static final long serialVersionUID = 2046119656958856019L;
+
 	/**
 	 * Check if the filter match the change.
 	 * 

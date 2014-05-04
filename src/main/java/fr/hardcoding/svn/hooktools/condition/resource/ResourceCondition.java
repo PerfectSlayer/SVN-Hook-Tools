@@ -16,6 +16,8 @@ import fr.hardcoding.svn.hooktools.hook.UnavailableHookDataException;
  * 
  */
 public class ResourceCondition extends AbstractCondition {
+	/** Serialization id. */
+	private static final long serialVersionUID = -81100215144128936L;
 	/** The resource filter collection. */
 	private final List<AbstractResourceFilter> resourceFilters;
 

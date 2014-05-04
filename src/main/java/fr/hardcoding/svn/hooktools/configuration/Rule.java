@@ -1,5 +1,6 @@
 package fr.hardcoding.svn.hooktools.configuration;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +15,9 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * @author Perfect Slayer (bruce.bujon@gmail.com)
  * 
  */
-public class Rule {
+public class Rule implements Serializable {
+	/** Serialization id. */
+	private static final long serialVersionUID = 7723529480316367053L;
 	/** The rule name. */
 	protected final String name;
 	/** The rule condition. */

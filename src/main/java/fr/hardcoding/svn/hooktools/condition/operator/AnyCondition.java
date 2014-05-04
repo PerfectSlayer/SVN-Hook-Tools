@@ -7,12 +7,8 @@ package fr.hardcoding.svn.hooktools.condition.operator;
  * 
  */
 public class AnyCondition extends AbtractGroupCondition {
-	/**
-	 * Constructor.
-	 */
-	public AnyCondition() {
-
-	}
+	/** Serialization id. */
+	private static final long serialVersionUID = -2454191928621348634L;
 
 	@Override
 	protected boolean applyConditionStatus(boolean conditionStatus) {

@@ -11,16 +11,11 @@ import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
  * 
  */
 public class PatternCommitLogCondition extends AbstractCommitLogCondition {
+	/** Serialization id. */
+	private static final long serialVersionUID = 6357730044308097798L;
 	/** The pattern the commit log must match. */
 	@ConfigurationParameter(isRequired = true)
 	public String pattern;
-
-	/**
-	 * Constructor.
-	 */
-	public PatternCommitLogCondition() {
-
-	}
 
 	@Override
 	public boolean checkCommitLog(String commitLog) {

@@ -4,8 +4,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,16 +44,18 @@ import fr.hardcoding.svn.hooktools.hook.HookType;
  * @author Perfect Slayer (bruce.bujon@gmail.com)
  * 
  */
-public class RuleSet {
+public class RuleSet implements Serializable {
+	/** Serialization id. */
+	private static final long serialVersionUID = -1095282945637365474L;
 	/*
 	 * Binding related.
 	 */
 	/** The condition binding map. */
-	private static final Map<String, Class<? extends AbstractCondition>> conditionBindings = new HashMap<>();
+	private static final Map<String, Class<? extends AbstractCondition>> CONDITION_BINDINGS = new HashMap<>();
 	/** The resource filter binding map. */
-	private static final Map<String, Class<? extends AbstractResourceFilter>> resourceFilterBindings = new HashMap<>();
+	private static final Map<String, Class<? extends AbstractResourceFilter>> RESOURCE_FILTER_BINDINGS = new HashMap<>();
 	/** The action binding map. */
-	private static final Map<String, Class<? extends AbstractAction>> actionBindings = new HashMap<>();
+	private static final Map<String, Class<? extends AbstractAction>> ACTION_BINDINGS = new HashMap<>();
 	/*
 	 * Binding name prefixes.
 	 */
@@ -100,7 +108,7 @@ public class RuleSet {
 							continue;
 						}
 						// Add condition class in the bindings
-						RuleSet.conditionBindings.put(conditionName, clazz.asSubclass(AbstractCondition.class));
+						RuleSet.CONDITION_BINDINGS.put(conditionName, clazz.asSubclass(AbstractCondition.class));
 					} catch (ClassNotFoundException exception) {
 						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.");
 					}
@@ -116,7 +124,7 @@ public class RuleSet {
 							continue;
 						}
 						// Add filter class in the bindings
-						RuleSet.resourceFilterBindings.put(filterName, clazz.asSubclass(AbstractResourceFilter.class));
+						RuleSet.RESOURCE_FILTER_BINDINGS.put(filterName, clazz.asSubclass(AbstractResourceFilter.class));
 					} catch (ClassNotFoundException exception) {
 						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.", exception);
 					}
@@ -132,7 +140,7 @@ public class RuleSet {
 							continue;
 						}
 						// Add condition class in the bindings
-						RuleSet.actionBindings.put(actionName, clazz.asSubclass(AbstractAction.class));
+						RuleSet.ACTION_BINDINGS.put(actionName, clazz.asSubclass(AbstractAction.class));
 					} catch (ClassNotFoundException exception) {
 						HookTools.LOGGER.log(Level.WARNING, "The class \""+className+"\" could not be loaded.");
 					}
@@ -157,6 +165,37 @@ public class RuleSet {
 	 * @return The related rule set.
 	 */
 	public static RuleSet fromHookType(HookType hookType) {
+		// Declare paths
+		Path configurationFile = Paths.get("config", hookType.getHookName()+"-rules.xml");
+		Path cachedRule = Paths.get("config", hookType.getHookName()+"-rules.xml.cache");
+		/*
+		 * Load rule set from cache.
+		 */
+		// Check if cached rule exist
+		if (Files.exists(cachedRule)) {
+			try {
+				// Check if cached rule is older than configuration file
+				if (Files.getLastModifiedTime(cachedRule).compareTo(Files.getLastModifiedTime(configurationFile))>0) {
+					// Create object input stream from cached
+					try (ObjectInputStream objectInputStream = new ObjectInputStream((Files.newInputStream(cachedRule)))) {
+						// Read object from stream
+						Object readObject = objectInputStream.readObject();
+						// Ensure read object is a rule set
+						if (!(readObject instanceof RuleSet))
+							throw new IOException("Restored object is not a rule set.");
+						// Return loaded rule
+						return (RuleSet) readObject;
+					} catch (ClassNotFoundException exception) {
+						throw new IOException("Missing class from cached rule set.", exception);
+					}
+				}
+			} catch (IOException exception) {
+				HookTools.LOGGER.log(Level.WARNING, "Unable to restore rule set from cache.", exception);
+			}
+		}
+		/*
+		 * Load rule set from configuration file.
+		 */
 		// Create rule set
 		RuleSet ruleSet = new RuleSet();
 		// Get stream from configuration file
@@ -189,6 +228,16 @@ public class RuleSet {
 			// Log and exit
 			HookTools.LOGGER.log(Level.SEVERE, "Unable to parse hook \""+hookType.getHookName()+"\" configuration file.", exception);
 			System.exit(-1);
+		}
+		/*
+		 * Save rule set to cache.
+		 */
+		// Create object output stream on cache
+		try (ObjectOutputStream outputStream = new ObjectOutputStream(Files.newOutputStream(cachedRule))) {
+			// Write rule set object
+			outputStream.writeObject(ruleSet);
+		} catch (IOException exception) {
+			HookTools.LOGGER.log(Level.WARNING,  "Unable to cache rule set.", exception);
 		}
 		// Return created rule set
 		return ruleSet;
@@ -250,7 +299,7 @@ public class RuleSet {
 		String conditionType = typeAttributeNode.getNodeValue();
 		try {
 			// Create condition instance
-			Class<? extends AbstractCondition> conditionClass = RuleSet.conditionBindings.get(conditionType);
+			Class<? extends AbstractCondition> conditionClass = RuleSet.CONDITION_BINDINGS.get(conditionType);
 			if (conditionClass==null)
 				throw new Exception("The condition named \""+conditionType+"\" is not bound.");
 			AbstractCondition condition = conditionClass.newInstance();
@@ -319,7 +368,7 @@ public class RuleSet {
 		String filterType = typeAttribudeNode.getNodeValue();
 		try {
 			// Create filter instance
-			Class<? extends AbstractResourceFilter> filterClass = RuleSet.resourceFilterBindings.get(filterType);
+			Class<? extends AbstractResourceFilter> filterClass = RuleSet.RESOURCE_FILTER_BINDINGS.get(filterType);
 			if (filterClass==null)
 				throw new Exception("The filter named \""+filterType+"\" is not bound.");
 			AbstractResourceFilter filter = filterClass.newInstance();
@@ -352,7 +401,7 @@ public class RuleSet {
 		String actionType = typeAttributNode.getNodeValue();
 		try {
 			// Create condition instance
-			Class<? extends AbstractAction> actionClass = RuleSet.actionBindings.get(actionType);
+			Class<? extends AbstractAction> actionClass = RuleSet.ACTION_BINDINGS.get(actionType);
 			if (actionClass==null)
 				throw new Exception("The action named \""+actionType+"\" is not bound.\"");
 			AbstractAction action = actionClass.newInstance();
@@ -377,6 +426,7 @@ public class RuleSet {
 	 * @throws Exception
 	 *             Throws exception if parameters could not be applied.
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static void applyParameters(Node node, Object loaded) throws Exception {
 		// Parse node parameters
 		Map<String, String> parameters = new HashMap<>();

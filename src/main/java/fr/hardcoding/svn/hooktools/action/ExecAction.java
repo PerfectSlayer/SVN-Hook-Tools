@@ -14,6 +14,8 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public class ExecAction extends AbstractAction {
+	/** Serialization id. */
+	private static final long serialVersionUID = 1855645515485513758L;
 	/** The command to execute. */
 	@ConfigurationParameter(isRequired = true)
 	public String command;

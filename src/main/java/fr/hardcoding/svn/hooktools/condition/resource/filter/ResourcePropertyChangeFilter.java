@@ -16,6 +16,8 @@ import fr.hardcoding.svn.hooktools.hook.UnavailableHookDataException;
  * 
  */
 public class ResourcePropertyChangeFilter extends AbstractResourceFilter {
+	/** Serialization id. */
+	private static final long serialVersionUID = -5713888368999827141L;
 	/** The property name to check. */
 	@ConfigurationParameter(isRequired = true)
 	public String name;

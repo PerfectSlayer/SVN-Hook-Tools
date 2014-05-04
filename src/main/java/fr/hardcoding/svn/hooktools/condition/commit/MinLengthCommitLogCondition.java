@@ -9,16 +9,11 @@ import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
  * 
  */
 public class MinLengthCommitLogCondition extends AbstractCommitLogCondition {
+	/** Serialization id. */
+	private static final long serialVersionUID = -3577892608055109156L;
 	/** The commit log min length (in characters). */
 	@ConfigurationParameter(isRequired = true)
 	public int length;
-
-	/**
-	 * Constructor.
-	 */
-	public MinLengthCommitLogCondition() {
-
-	}
 
 	@Override
 	public boolean checkCommitLog(String commitLog) {

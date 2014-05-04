@@ -14,6 +14,8 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public class ResourceLocationFilter extends AbstractResourceFilter {
+	/** Serialization id. */
+	private static final long serialVersionUID = -4962673813714299042L;
 	/*
 	 * Condition parameters.
 	 */

@@ -22,6 +22,8 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public class RequestAction extends AbstractAction {
+	/** Serialization id. */
+	private static final long serialVersionUID = 7034277181838051334L;
 	/** The request URL to access to. */
 	@ConfigurationParameter(isRequired = true)
 	public String url;

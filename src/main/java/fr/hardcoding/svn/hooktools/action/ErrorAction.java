@@ -10,6 +10,8 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public class ErrorAction extends AbstractAction {
+	/** Serialization id. */
+	private static final long serialVersionUID = 7685944852705286928L;
 	/*
 	 * Action parameters.
 	 */
@@ -19,12 +21,6 @@ public class ErrorAction extends AbstractAction {
 	/** The error message. */
 	@ConfigurationParameter()
 	public String message;
-
-	/**
-	 * Constructor.
-	 */
-	public ErrorAction() {
-	}
 
 	@Override
 	public boolean perform(AbstractHook hook) {

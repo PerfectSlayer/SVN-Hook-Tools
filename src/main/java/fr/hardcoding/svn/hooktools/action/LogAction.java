@@ -13,6 +13,8 @@ import fr.hardcoding.svn.hooktools.hook.AbstractHook;
  * 
  */
 public class LogAction extends AbstractAction {
+	/** Serialization id. */
+	private static final long serialVersionUID = 1309481957705730911L;
 	/** The log entry message. */
 	@ConfigurationParameter(isRequired = true)
 	public String message;

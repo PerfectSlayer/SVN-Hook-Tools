@@ -9,13 +9,9 @@ import fr.hardcoding.svn.hooktools.condition.AbstractCondition;
  * 
  */
 public class NotCondition extends AbtractGroupCondition {
-	/**
-	 * Constructor.
-	 */
-	public NotCondition() {
+	/** Serialization id. */
+	private static final long serialVersionUID = 1169687315224072951L;
 
-	}
-	
 	@Override
 	public void addCondition(AbstractCondition condition) {
 		// Check only one condition is stored
