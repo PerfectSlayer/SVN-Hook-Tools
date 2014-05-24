@@ -30,6 +30,9 @@ public class RequestAction extends AbstractAction {
 	/** The request type to perform. */
 	@ConfigurationParameter
 	public String type;
+	/** The headers to send. */
+	@ConfigurationParameter
+	public String headers;
 	/** The request data to send (<code>null</code> if no data). */
 	@ConfigurationParameter
 	public String data;
@@ -56,6 +59,23 @@ public class RequestAction extends AbstractAction {
 			// Configure URL connection
 			HttpURLConnection httpConnection = (HttpURLConnection) connection;
 			httpConnection.setRequestMethod(this.type);
+			// Check HTTP headers
+			if (this.headers!=null) {
+				// Send each header
+				for (String header : this.headers.split("\\\\r\\\\n")) {
+					// Split header into field and value
+					int index = header.indexOf(": ");
+					if (index==-1)
+						continue;
+					int length = header.length();
+					if (index+2>=length)
+						continue;
+					String headerField = header.substring(0, index);
+					String headerValue = header.substring(index+2, length);
+					// Add HTTP header
+					httpConnection.setRequestProperty(headerField, headerValue);
+				}
+			}
 			// Check POST data
 			if (this.type.equals("POST")&&this.data!=null) {
 				// Send POST data
@@ -69,6 +89,8 @@ public class RequestAction extends AbstractAction {
 				String line;
 				do {
 					line = reader.readLine();
+					if (line!=null)
+					HookTools.LOGGER.info(line);
 				} while (line!=null);
 			}
 		} catch (IOException exception) {
