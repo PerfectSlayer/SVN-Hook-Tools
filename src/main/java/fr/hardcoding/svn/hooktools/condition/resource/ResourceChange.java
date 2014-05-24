@@ -14,6 +14,8 @@ public class ResourceChange {
 	private final AbstractHook hook;
 	/** The resource path changed. */
 	private final String path;
+	/** The resource type. */
+	private final ResourceType type;
 	/** The resource change operation. */
 	private final ResourceOperation operation;
 	/** The resource properties change status (<code>true</code> if the resource properties have changed, <code>false</code> otherwise). */
@@ -28,14 +30,17 @@ public class ResourceChange {
 	 *            The related hook.
 	 * @param path
 	 *            The resource path changed.
+	 * @param type
+	 *            The resource type.
 	 * @param operation
 	 *            The resource change operation.
 	 * @param propertyChanged
 	 *            <code>true</code> if the resource properties have changed, <code>false</code> otherwise.
 	 */
-	public ResourceChange(AbstractHook hook, String path, ResourceOperation operation, boolean propertyChanged) {
+	public ResourceChange(AbstractHook hook, String path, ResourceType type, ResourceOperation operation, boolean propertyChanged) {
 		this.hook = hook;
 		this.path = path;
+		this.type = type;
 		this.operation = operation;
 		this.propertiesChanged = propertyChanged;
 	}
@@ -47,6 +52,15 @@ public class ResourceChange {
 	 */
 	public String getPath() {
 		return this.path;
+	}
+
+	/**
+	 * Get the resource type.
+	 * 
+	 * @return The resource type.
+	 */
+	public ResourceType getType() {
+		return this.type;
 	}
 
 	/**

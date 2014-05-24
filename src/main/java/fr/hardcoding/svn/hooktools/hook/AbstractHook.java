@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.tmatesoft.svn.core.SVNException;
+import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
 import org.tmatesoft.svn.core.wc.admin.ISVNChangeEntryHandler;
@@ -17,6 +18,7 @@ import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
+import fr.hardcoding.svn.hooktools.condition.resource.ResourceType;
 import fr.hardcoding.svn.hooktools.configuration.Rule;
 
 /**
@@ -184,6 +186,8 @@ public abstract class AbstractHook {
 					svnLookClient.doGetChanged(this.repositoryPath, this.transactionName, new ISVNChangeEntryHandler() {
 						@Override
 						public void handleEntry(SVNChangeEntry changeEntry) throws SVNException {
+							// Ger resource type
+							ResourceType type = changeEntry.getKind()==SVNNodeKind.DIR ? ResourceType.DIRECTORY : ResourceType.FILE;
 							// Get resource operation
 							ResourceOperation operation;
 							switch (changeEntry.getType()) {
@@ -203,7 +207,7 @@ public abstract class AbstractHook {
 									operation = ResourceOperation.PROPERTY_CHANGED;
 							}
 							// Create and add resource change
-							ResourceChange resourceChange = new ResourceChange(AbstractHook.this, changeEntry.getPath(), operation, changeEntry
+							ResourceChange resourceChange = new ResourceChange(AbstractHook.this, changeEntry.getPath(), type, operation, changeEntry
 									.hasPropertyModifications());
 							AbstractHook.this.commitChanges.put(resourceChange.getPath(), resourceChange);
 						}
