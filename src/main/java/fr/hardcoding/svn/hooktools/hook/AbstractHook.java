@@ -72,12 +72,12 @@ public abstract class AbstractHook {
 	public AbstractHook(HookType type, String[] parameters) {
 		// Store the hook type
 		this.type = type;
-		// Parse hook parameters
-		this.parseParameters(parameters);
 		// Initialize unavailable data
 		this.revisionNumber = -1;
 		// Set default error code
 		this.errorCode = 0;
+		// Parse hook parameters
+		this.parseParameters(parameters);
 		// Initialize the commit diff loaded status
 		this.commitDiffLoaded = false;
 	}

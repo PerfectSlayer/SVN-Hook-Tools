@@ -7,8 +7,8 @@ package fr.hardcoding.svn.hooktools.hook;
  * 
  */
 public enum HookType {
-	/** The start hook type. */
-	START_HOOK("start", 3),
+	/** The start commit hook type. */
+	START_COMMIT_HOOK("start-commit", 3),
 	/** The pre-commit hook type. */
 	PRE_COMMIT_HOOK("pre-commit", 2),
 	/** The post-commit hook type. */
