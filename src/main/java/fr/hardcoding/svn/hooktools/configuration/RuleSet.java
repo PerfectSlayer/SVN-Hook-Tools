@@ -267,7 +267,12 @@ public class RuleSet implements Serializable {
 			Node childNode = childNodeList.item(i);
 			switch (childNode.getNodeName()) {
 				case RuleSet.CONDITION_NODE_NAME:
-					// TODO add check if there is already loaded condition
+					// Check if condition is already defined
+					if (rule.getCondition()!=null) {
+						HookTools.LOGGER.warning("The rule \""+ruleName+"\" already has a condition. Use condition group to define more than on condition.");
+						break;
+					}
+					// Load and set condition
 					AbstractCondition condition = RuleSet.loadCondition(childNode);
 					rule.setCondition(condition);
 					break;
@@ -347,7 +352,6 @@ public class RuleSet implements Serializable {
 		} catch (IllegalAccessException exception) {
 			throw new Exception("Unable to instantiate condition \""+conditionType+"\".", exception);
 		}
-		// TODO operator
 	}
 
 	/**
