@@ -11,6 +11,7 @@ import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.admin.ISVNChangeEntryHandler;
 import org.tmatesoft.svn.core.wc.admin.SVNChangeEntry;
 import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
@@ -112,13 +113,17 @@ public abstract class AbstractHook {
 				// Check required data
 				if (this.repositoryPath==null)
 					throw new UnavailableHookDataException("repository path");
+				// Get SVN look client
+				SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
+				// Check transaction name or revision number
 				if (this.transactionName!=null) {
-					// Get SVN look client
-					SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
 					// Get commit log from transaction
 					this.commitLog = svnLookClient.doGetLog(this.repositoryPath, this.transactionName);
 				} else if (this.revisionNumber!=-1) {
-					// TODO Handle revision
+					// Get SVN revision
+					SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
+					// Get commit log from transaction
+					this.commitLog = svnLookClient.doGetLog(this.repositoryPath, svnRevision);
 				} else {
 					throw new UnavailableHookDataException("commit log");
 				}
@@ -144,14 +149,17 @@ public abstract class AbstractHook {
 				// Check repository path
 				if (this.repositoryPath==null)
 					throw new UnavailableHookDataException("repository path");
-				// Check transaction name
+				// Get SVN look client
+				SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
+				// Check transaction name or revision number
 				if (this.transactionName!=null) {
-					// Get SVN look client
-					SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
 					// Get commit author from transaction
 					this.commitAuthor = svnLookClient.doGetAuthor(this.repositoryPath, this.transactionName);
 				} else if (this.revisionNumber!=-1) {
-					// TODO Handle revision
+					// Get SVN revision
+					SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
+					// Get commit author from revision number
+					this.commitAuthor = svnLookClient.doGetAuthor(this.repositoryPath, svnRevision);
 				} else {
 					throw new UnavailableHookDataException("revision / transaction");
 				}
@@ -177,43 +185,49 @@ public abstract class AbstractHook {
 				// Check repository path
 				if (this.repositoryPath==null)
 					throw new UnavailableHookDataException("repository path");
-				// Check transaction name
-				if (this.transactionName!=null) {
-					// Get SVN look client
-					SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
-					this.commitChanges = new HashMap<>();
-					// Get commit changes from transaction
-					svnLookClient.doGetChanged(this.repositoryPath, this.transactionName, new ISVNChangeEntryHandler() {
-						@Override
-						public void handleEntry(SVNChangeEntry changeEntry) throws SVNException {
-							// Ger resource type
-							ResourceType type = changeEntry.getKind()==SVNNodeKind.DIR ? ResourceType.DIRECTORY : ResourceType.FILE;
-							// Get resource operation
-							ResourceOperation operation;
-							switch (changeEntry.getType()) {
-								case SVNChangeEntry.TYPE_ADDED:
-									if (changeEntry.getCopyFromPath()==null)
-										operation = ResourceOperation.ADDED;
-									else
-										operation = ResourceOperation.COPIED;
-									break;
-								case SVNChangeEntry.TYPE_DELETED:
-									operation = ResourceOperation.DELETED;
-									break;
-								case SVNChangeEntry.TYPE_UPDATED:
-									operation = ResourceOperation.UPDATED;
-									break;
-								default:
-									operation = ResourceOperation.PROPERTY_CHANGED;
-							}
-							// Create and add resource change
-							ResourceChange resourceChange = new ResourceChange(AbstractHook.this, changeEntry.getPath(), type, operation, changeEntry
-									.hasPropertyModifications());
-							AbstractHook.this.commitChanges.put(resourceChange.getPath(), resourceChange);
+				// Create commit change collection
+				this.commitChanges = new HashMap<>();
+				// Get SVN look client
+				SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
+				// Create change entry handle
+				ISVNChangeEntryHandler changeEntryHandler = new ISVNChangeEntryHandler() {
+					@Override
+					public void handleEntry(SVNChangeEntry changeEntry) throws SVNException {
+						// Get resource type
+						ResourceType type = changeEntry.getKind()==SVNNodeKind.DIR ? ResourceType.DIRECTORY : ResourceType.FILE;
+						// Get resource operation
+						ResourceOperation operation;
+						switch (changeEntry.getType()) {
+						case SVNChangeEntry.TYPE_ADDED:
+							if (changeEntry.getCopyFromPath()==null)
+								operation = ResourceOperation.ADDED;
+							else
+								operation = ResourceOperation.COPIED;
+							break;
+						case SVNChangeEntry.TYPE_DELETED:
+							operation = ResourceOperation.DELETED;
+							break;
+						case SVNChangeEntry.TYPE_UPDATED:
+							operation = ResourceOperation.UPDATED;
+							break;
+						default:
+							operation = ResourceOperation.PROPERTY_CHANGED;
 						}
-					}, true);
+						// Create and add resource change
+						ResourceChange resourceChange = new ResourceChange(AbstractHook.this, changeEntry.getPath(), type, operation, changeEntry
+								.hasPropertyModifications());
+						AbstractHook.this.commitChanges.put(resourceChange.getPath(), resourceChange);
+					}
+				};
+				// Check transaction name or revision number
+				if (this.transactionName!=null) {
+					// Get commit changes from transaction
+					svnLookClient.doGetChanged(this.repositoryPath, this.transactionName, changeEntryHandler, true);
 				} else if (this.revisionNumber!=-1) {
-					// TODO Handle revision
+					// Get SVN revision
+					SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
+					// Get commit changes from revision number
+					svnLookClient.doGetChanged(this.repositoryPath, svnRevision, changeEntryHandler, true);
 				} else {
 					throw new UnavailableHookDataException("revision / transaction");
 				}
@@ -247,14 +261,17 @@ public abstract class AbstractHook {
 			// Check repository path
 			if (this.repositoryPath==null)
 				throw new UnavailableHookDataException("repository path");
-			// Check transaction name
+			// Get SVN look client
+			SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
+			// Check transaction name or revision number
 			if (this.transactionName!=null) {
-				// Get SVN look client
-				SVNLookClient svnLookClient = this.getSvnClientManager().getLookClient();
 				// Get commit changes from transaction
 				svnLookClient.doGetDiff(this.repositoryPath, this.transactionName, true, true, true, byteArrayOutputStream);
 			} else if (this.revisionNumber!=-1) {
-				// TODO Handle revision
+				// Get SVN revision
+				SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
+				// Get commit changes from revision
+				svnLookClient.doGetDiff(this.repositoryPath, svnRevision, true, true, true, byteArrayOutputStream);
 			} else {
 				throw new UnavailableHookDataException("revision / transaction");
 			}

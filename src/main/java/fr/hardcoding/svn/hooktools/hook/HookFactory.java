@@ -50,5 +50,4 @@ public class HookFactory {
 		// Return created hook
 		return hook;
 	}
-
 }
