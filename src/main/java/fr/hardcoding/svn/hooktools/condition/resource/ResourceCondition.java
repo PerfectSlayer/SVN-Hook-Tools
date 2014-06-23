@@ -3,7 +3,9 @@ package fr.hardcoding.svn.hooktools.condition.resource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 
+import fr.hardcoding.svn.hooktools.HookTools;
 import fr.hardcoding.svn.hooktools.condition.AbstractCondition;
 import fr.hardcoding.svn.hooktools.condition.resource.filter.AbstractResourceFilter;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
@@ -46,6 +48,7 @@ public class ResourceCondition extends AbstractCondition {
 		try {
 			resourceChanges = hook.getCommitChanges().values();
 		} catch (UnavailableHookDataException exception) {
+			HookTools.LOGGER.log(Level.WARNING, "An error occured while evaluating resource condition.", exception);
 			// Invalidate the operation if data are not available
 			return false;
 		}

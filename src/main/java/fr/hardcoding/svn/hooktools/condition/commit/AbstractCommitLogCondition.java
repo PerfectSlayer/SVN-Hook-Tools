@@ -1,5 +1,8 @@
 package fr.hardcoding.svn.hooktools.condition.commit;
 
+import java.util.logging.Level;
+
+import fr.hardcoding.svn.hooktools.HookTools;
 import fr.hardcoding.svn.hooktools.condition.AbstractCondition;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 import fr.hardcoding.svn.hooktools.hook.UnavailableHookDataException;
@@ -22,6 +25,7 @@ public abstract class AbstractCommitLogCondition extends AbstractCondition {
 			// Check the commit log
 			return this.checkCommitLog(commitLog);
 		} catch (UnavailableHookDataException exception) {
+			HookTools.LOGGER.log(Level.WARNING, "An error occured while evaluating commit log condition.", exception);
 			// Invalidate the operation if data are not available
 			return false;
 		}

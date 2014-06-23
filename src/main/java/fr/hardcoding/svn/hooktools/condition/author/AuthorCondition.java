@@ -1,5 +1,8 @@
 package fr.hardcoding.svn.hooktools.condition.author;
 
+import java.util.logging.Level;
+
+import fr.hardcoding.svn.hooktools.HookTools;
 import fr.hardcoding.svn.hooktools.condition.AbstractCondition;
 import fr.hardcoding.svn.hooktools.condition.StringComparison;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
@@ -36,6 +39,7 @@ public class AuthorCondition extends AbstractCondition {
 			// Check commit author with requested commit author
 			return this.nameComparison.compare(hook.getCommitAuthor(), this.name);
 		} catch (UnavailableHookDataException exception) {
+			HookTools.LOGGER.log(Level.WARNING, "An error occured while evaluating author condition.", exception);
 			// Invalidate the operation if data are not available
 			return false;
 		}
