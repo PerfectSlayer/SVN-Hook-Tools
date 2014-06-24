@@ -237,7 +237,7 @@ public class RuleSet implements Serializable {
 			// Write rule set object
 			outputStream.writeObject(ruleSet);
 		} catch (IOException exception) {
-			HookTools.LOGGER.log(Level.WARNING,  "Unable to cache rule set.", exception);
+			HookTools.LOGGER.log(Level.WARNING, "Unable to cache rule set.", exception);
 		}
 		// Return created rule set
 		return ruleSet;
@@ -259,8 +259,13 @@ public class RuleSet implements Serializable {
 		if (nameAttributeNode==null)
 			throw new Exception("The rule is missing name.");
 		String ruleName = nameAttributeNode.getNodeValue();
+		// Get rule breaker behavior
+		boolean breaker = false;
+		nameAttributeNode = namedNodeMap.getNamedItem("breaker");
+		if (nameAttributeNode!=null)
+			breaker = Boolean.parseBoolean(nameAttributeNode.getNodeValue());
 		// Create rule
-		Rule rule = new Rule(ruleName);
+		Rule rule = new Rule(ruleName, breaker);
 		// Load rule condition
 		NodeList childNodeList = ruleNode.getChildNodes();
 		for (int i = 0; i<childNodeList.getLength(); i++) {

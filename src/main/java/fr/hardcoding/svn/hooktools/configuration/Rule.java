@@ -20,6 +20,8 @@ public class Rule implements Serializable {
 	private static final long serialVersionUID = 7723529480316367053L;
 	/** The rule name. */
 	protected final String name;
+	/** The rule breaker behavior (<code>true</code> if the rule breaks rule set interpretation if condition is validate, <code>false</code> otherwise). */
+	protected boolean breaker;
 	/** The rule condition. */
 	protected AbstractCondition condition;
 	/** The rule actions (at least one action). */
@@ -30,9 +32,13 @@ public class Rule implements Serializable {
 	 * 
 	 * @param name
 	 *            The rule name.
+	 * @param breaker
+	 *            The rule breaker behavior to set (<code>true</code> if the rule breaks rule set interpretation if condition is validate, <code>false</code>
+	 *            otherwise).
 	 */
-	public Rule(String name) {
+	public Rule(String name, boolean breaker) {
 		this.name = name;
+		this.breaker = breaker;
 		this.actions = new LinkedList<AbstractAction>();
 	}
 
@@ -43,6 +49,15 @@ public class Rule implements Serializable {
 	 */
 	public String getName() {
 		return this.name;
+	}
+
+	/**
+	 * Get the rule breaker behavior.
+	 * 
+	 * @return The rule breaker behavior (<code>true</code> if the rule breaks rule set interpretation if condition is validate, <code>false</code> otherwise).
+	 */
+	public boolean isBreaker() {
+		return this.breaker;
 	}
 
 	/**
@@ -109,11 +124,9 @@ public class Rule implements Serializable {
 		// Perform each action
 		for (AbstractAction action : this.actions) {
 			// Perform action
-			if (action.perform(hook))
-				// Break action chain
-				break;
+			action.perform(hook);
 		}
-		// TODO
-		return false;
+		// Return the breaker behavoir
+		return this.breaker;
 	}
 }

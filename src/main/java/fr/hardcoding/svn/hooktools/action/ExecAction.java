@@ -27,7 +27,7 @@ public class ExecAction extends AbstractAction {
 	public Boolean waitFor;
 
 	@Override
-	public boolean perform(AbstractHook hook) {
+	public void perform(AbstractHook hook) {
 		// Create command array
 		String[] commandArray = new String[this.parameters==null ? 1 : 2];
 		commandArray[0] = this.command;
@@ -46,7 +46,5 @@ public class ExecAction extends AbstractAction {
 		} catch (InterruptedException exception) {
 			HookTools.LOGGER.log(Level.WARNING, "Unable to wait the result for the command: \""+this.command+"\".", exception);
 		}
-		// Continue the remaining rule actions
-		return false;
 	}
 }

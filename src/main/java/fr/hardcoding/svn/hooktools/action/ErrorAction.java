@@ -23,13 +23,11 @@ public class ErrorAction extends AbstractAction {
 	public String message;
 
 	@Override
-	public boolean perform(AbstractHook hook) {
+	public void perform(AbstractHook hook) {
 		// Check error message
 		if (this.message!=null)
 			hook.sendErrorMessage(this.message);
 		// Set error code
 		hook.setErrorCode(this.code);
-		// Continue the remaining rule actions
-		return false;
 	}
 }

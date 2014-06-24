@@ -19,7 +19,6 @@ public abstract class AbstractAction implements Serializable {
 	 * 
 	 * @param hook
 	 *            The performing hook.
-	 * @return <code>true</code> if the action should break the remaining rule actions, <code>false</code> otherwise.
 	 */
-	public abstract boolean perform(AbstractHook hook);
+	public abstract void perform(AbstractHook hook);
 }

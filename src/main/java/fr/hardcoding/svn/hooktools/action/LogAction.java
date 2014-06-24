@@ -31,10 +31,8 @@ public class LogAction extends AbstractAction {
 	}
 
 	@Override
-	public boolean perform(AbstractHook hook) {
+	public void perform(AbstractHook hook) {
 		// Add log entry to application log
 		HookTools.LOGGER.log(Level.parse(this.level), "[LogAction] "+this.message);
-		// Continue the remaining rule actions
-		return false;
 	}
 }

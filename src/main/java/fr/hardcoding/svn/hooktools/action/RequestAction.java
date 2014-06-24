@@ -46,7 +46,7 @@ public class RequestAction extends AbstractAction {
 	}
 
 	@Override
-	public boolean perform(AbstractHook hook) {
+	public void perform(AbstractHook hook) {
 		try {
 			// Check if there is data to append to URL
 			if (this.type.equals("GET")&&this.data!=null)
@@ -55,7 +55,7 @@ public class RequestAction extends AbstractAction {
 			URL requestUrl = new URL(this.url);
 			URLConnection connection = requestUrl.openConnection();
 			if (!(connection instanceof HttpURLConnection))
-				return false;
+				return;
 			// Configure URL connection
 			HttpURLConnection httpConnection = (HttpURLConnection) connection;
 			httpConnection.setRequestMethod(this.type);
@@ -90,13 +90,11 @@ public class RequestAction extends AbstractAction {
 				do {
 					line = reader.readLine();
 					if (line!=null)
-					HookTools.LOGGER.info(line);
+						HookTools.LOGGER.info(line);
 				} while (line!=null);
 			}
 		} catch (IOException exception) {
 			HookTools.LOGGER.log(Level.WARNING, "Unable to perform the request to \""+this.url+"\".", exception);
 		}
-		// Continue the remaining rule actions
-		return false;
 	}
 }
