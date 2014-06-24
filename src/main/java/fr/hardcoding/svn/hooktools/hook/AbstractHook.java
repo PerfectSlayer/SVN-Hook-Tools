@@ -16,6 +16,7 @@ import org.tmatesoft.svn.core.wc.admin.ISVNChangeEntryHandler;
 import org.tmatesoft.svn.core.wc.admin.SVNChangeEntry;
 import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
 
+import fr.hardcoding.svn.hooktools.DiffTools;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
@@ -33,13 +34,11 @@ public abstract class AbstractHook {
 	protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	/** The hook type. */
 	protected final HookType type;
-
 	/*
 	 * SVNKit related.
 	 */
 	/** The SVN client manager (<code>null</code> if not initialized). */
 	protected SVNClientManager svnClientManager;
-
 	/*
 	 * Data related.
 	 */
@@ -57,7 +56,6 @@ public abstract class AbstractHook {
 	protected Map<String, ResourceChange> commitChanges;
 	/** The commit diff loaded status (<code>true</code> if loaded, <code>false</code> otherwise). */
 	protected boolean commitDiffLoaded;
-
 	/*
 	 * Result related.
 	 */

@@ -1,4 +1,4 @@
-package fr.hardcoding.svn.hooktools.hook;
+package fr.hardcoding.svn.hooktools;
 
 import java.util.ArrayList;
 import java.util.List;

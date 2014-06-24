@@ -64,7 +64,6 @@ public class HookTools {
 			HookTools.LOGGER.severe("Missing hook parameters ("+hookParameterCount+" parameter waited).");
 			System.exit(-1);
 		}
-
 		// Create hook
 		String[] hookParameters = new String[hookParameterCount];
 		System.arraycopy(args, 1, hookParameters, 0, hookParameterCount);

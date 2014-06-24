@@ -6,7 +6,6 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceDiff.PropertyChange;
-import fr.hardcoding.svn.hooktools.hook.DiffTools;
 
 /**
  * This class is a unit test for {@link DiffTools} features.
