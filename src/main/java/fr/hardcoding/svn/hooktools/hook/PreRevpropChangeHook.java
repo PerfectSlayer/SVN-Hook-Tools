@@ -1,14 +1,12 @@
 package fr.hardcoding.svn.hooktools.hook;
 
-import java.io.File;
-
 /**
  * This class is the pre-revprop-change hook implementation.
  * 
  * @author Perfect Slayer (bruce.bujon@gmail.com)
  * 
  */
-public class PreRevpropChangeHook extends AbstractHook {
+public class PreRevpropChangeHook extends AbstractRevpropChangeHook {
 	/**
 	 * Constructor.
 	 * 
@@ -22,8 +20,12 @@ public class PreRevpropChangeHook extends AbstractHook {
 	}
 
 	@Override
-	protected void parseParameters(String[] parameters) {
-		this.repositoryPath = new File(parameters[0]);
-		this.transactionName = parameters[2];
+	protected String getOldValue(String propertyName) {
+		return this.getRevpropValue(propertyName);
+	}
+
+	@Override
+	protected String getNewValue(String propertyName) {
+		return this.readPropertyValue();
 	}
 }

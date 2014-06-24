@@ -29,6 +29,8 @@ import fr.hardcoding.svn.hooktools.configuration.Rule;
  * 
  */
 public abstract class AbstractHook {
+	/** The line separator. */
+	protected static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	/** The hook type. */
 	protected final HookType type;
 
@@ -77,10 +79,10 @@ public abstract class AbstractHook {
 		this.revisionNumber = -1;
 		// Set default error code
 		this.errorCode = 0;
-		// Parse hook parameters
-		this.parseParameters(parameters);
 		// Initialize the commit diff loaded status
 		this.commitDiffLoaded = false;
+		// Parse hook parameters
+		this.parseParameters(parameters);
 	}
 
 	/**

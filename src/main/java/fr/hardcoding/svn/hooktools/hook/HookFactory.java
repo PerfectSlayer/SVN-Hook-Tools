@@ -28,10 +28,10 @@ public class HookFactory {
 		case POST_COMMIT_HOOK:
 			hook = new PostCommitHook(hookType, hookParameters);
 			break;
-		case PRE_REV_PROP_CHANGE_HOOK:
+		case PRE_REVPROP_CHANGE_HOOK:
 			hook = new PreRevpropChangeHook(hookType, hookParameters);
 			break;
-		case POST_REV_PROP_CHANGE_HOOK:
+		case POST_REVPROP_CHANGE_HOOK:
 			hook = new PostRevpropChangeHook(hookType, hookParameters);
 			break;
 		case PRE_LOCK_HOOK:

@@ -13,10 +13,10 @@ public enum HookType {
 	PRE_COMMIT_HOOK("pre-commit", 2),
 	/** The post-commit hook type. */
 	POST_COMMIT_HOOK("post-commit", 2),
-	/** The pre-rev-prop-change hook type. */
-	PRE_REV_PROP_CHANGE_HOOK("pre-rev-prop-change", 5),
-	/** The post-rev-prop-change hook type. */
-	POST_REV_PROP_CHANGE_HOOK("post-rev-prop-change", 5),
+	/** The pre-revprop-change hook type. */
+	PRE_REVPROP_CHANGE_HOOK("pre-revprop-change", 5),
+	/** The post-revprop-change hook type. */
+	POST_REVPROP_CHANGE_HOOK("post-revprop-change", 5),
 	/** The pre-lock hook type. */
 	PRE_LOCK_HOOK("pre-lock", 5),
 	/** The post-lock hook type. */

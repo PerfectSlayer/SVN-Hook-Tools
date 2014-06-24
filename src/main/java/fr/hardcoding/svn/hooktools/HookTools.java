@@ -82,26 +82,6 @@ public class HookTools {
 		 */
 		RuleSet ruleSet = RuleSet.fromHookType(hookType);
 
-		// Rule emptyCommitLogRule = new Rule("empty commit log");
-
-		// emptyCommitLogRule.setCondition(new EmptyCommitLogCondition());
-
-		// AllCondition allCondition = new AllCondition();
-		// allCondition.addCondition(new EmptyCommitLogCondition());
-		// allCondition.addCondition(new AuthorCondition("svnuser"));
-		// emptyCommitLogRule.setCondition(allCondition);
-
-		// AnyCondition anyCondition = new AnyCondition();
-		// anyCondition.addCondition(new EmptyCommitLogCondition());
-		// anyCondition.addCondition(new AuthorCondition("Perfect Slayer"));
-		// emptyCommitLogRule.setCondition(anyCondition);
-
-		// ResourceCondition resourceCondition = new ResourceCondition();
-		// resourceCondition.addResourceFilter(new ResourceOperationFilter(ResourceOperation.ITEM_ADDED));
-		// emptyCommitLogRule.setCondition(resourceCondition);
-
-		// emptyCommitLogRule.addAction(new ErrorAction());
-
 		/*
 		 * Process hook.
 		 */
