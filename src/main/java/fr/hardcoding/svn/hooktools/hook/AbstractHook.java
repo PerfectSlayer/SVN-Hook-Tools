@@ -47,8 +47,8 @@ public abstract class AbstractHook {
 	protected File repositoryPath;
 	/** The transaction name (may be <code>null</code>). */
 	protected String transactionName;
-	/** The revision number (<code>-1</code> if not available). */
-	protected int revisionNumber;
+	/** The revision number (<code>null</code> if not available). */
+	protected SVNRevision revisionNumber;
 	/** The commit log (<code>null</code> if not available). */
 	protected String commitLog;
 	/** The commit author (<code>null</code> if not available). */
@@ -75,8 +75,6 @@ public abstract class AbstractHook {
 	public AbstractHook(HookType type, String[] parameters) {
 		// Store the hook type
 		this.type = type;
-		// Initialize unavailable data
-		this.revisionNumber = -1;
 		// Set default error code
 		this.errorCode = 0;
 		// Initialize the commit diff loaded status
@@ -121,11 +119,9 @@ public abstract class AbstractHook {
 				if (this.transactionName!=null) {
 					// Get commit log from transaction
 					this.commitLog = svnLookClient.doGetLog(this.repositoryPath, this.transactionName);
-				} else if (this.revisionNumber!=-1) {
-					// Get SVN revision
-					SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
+				} else if (this.revisionNumber!=null) {
 					// Get commit log from transaction
-					this.commitLog = svnLookClient.doGetLog(this.repositoryPath, svnRevision);
+					this.commitLog = svnLookClient.doGetLog(this.repositoryPath, this.revisionNumber);
 				} else {
 					throw new UnavailableHookDataException("commit log");
 				}
@@ -157,11 +153,9 @@ public abstract class AbstractHook {
 				if (this.transactionName!=null) {
 					// Get commit author from transaction
 					this.commitAuthor = svnLookClient.doGetAuthor(this.repositoryPath, this.transactionName);
-				} else if (this.revisionNumber!=-1) {
-					// Get SVN revision
-					SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
+				} else if (this.revisionNumber!=null) {
 					// Get commit author from revision number
-					this.commitAuthor = svnLookClient.doGetAuthor(this.repositoryPath, svnRevision);
+					this.commitAuthor = svnLookClient.doGetAuthor(this.repositoryPath, this.revisionNumber);
 				} else {
 					throw new UnavailableHookDataException("revision / transaction");
 				}
@@ -225,11 +219,9 @@ public abstract class AbstractHook {
 				if (this.transactionName!=null) {
 					// Get commit changes from transaction
 					svnLookClient.doGetChanged(this.repositoryPath, this.transactionName, changeEntryHandler, true);
-				} else if (this.revisionNumber!=-1) {
-					// Get SVN revision
-					SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
+				} else if (this.revisionNumber!=null) {
 					// Get commit changes from revision number
-					svnLookClient.doGetChanged(this.repositoryPath, svnRevision, changeEntryHandler, true);
+					svnLookClient.doGetChanged(this.repositoryPath, this.revisionNumber, changeEntryHandler, true);
 				} else {
 					throw new UnavailableHookDataException("revision / transaction");
 				}
@@ -269,11 +261,9 @@ public abstract class AbstractHook {
 			if (this.transactionName!=null) {
 				// Get commit changes from transaction
 				svnLookClient.doGetDiff(this.repositoryPath, this.transactionName, true, true, true, byteArrayOutputStream);
-			} else if (this.revisionNumber!=-1) {
-				// Get SVN revision
-				SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
+			} else if (this.revisionNumber!=null) {
 				// Get commit changes from revision
-				svnLookClient.doGetDiff(this.repositoryPath, svnRevision, true, true, true, byteArrayOutputStream);
+				svnLookClient.doGetDiff(this.repositoryPath, this.revisionNumber, true, true, true, byteArrayOutputStream);
 			} else {
 				throw new UnavailableHookDataException("revision / transaction");
 			}

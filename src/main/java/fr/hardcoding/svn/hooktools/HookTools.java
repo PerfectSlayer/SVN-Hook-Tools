@@ -49,7 +49,6 @@ public class HookTools {
 			HookTools.LOGGER.severe("Missing hook name parameter.");
 			System.exit(-1);
 		}
-
 		// Get hook type
 		String hookName = args[0];
 		HookType hookType = HookType.fromName(hookName);
@@ -58,7 +57,6 @@ public class HookTools {
 			HookTools.LOGGER.severe("Unknown hook name: "+hookName+".");
 			System.exit(-1);
 		}
-
 		// Check hook parameter count
 		int hookParameterCount = hookType.getParameterCount();
 		if (args.length<hookParameterCount+1) {
@@ -76,12 +74,11 @@ public class HookTools {
 			HookTools.LOGGER.severe("Unsupported hook type: "+hookType.name()+".");
 			System.exit(-1);
 		}
-
 		/*
 		 * Load configuration.
 		 */
+		// Load rule set
 		RuleSet ruleSet = RuleSet.fromHookType(hookType);
-
 		/*
 		 * Process hook.
 		 */

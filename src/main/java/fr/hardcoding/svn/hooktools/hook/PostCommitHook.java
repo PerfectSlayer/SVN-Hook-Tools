@@ -2,6 +2,8 @@ package fr.hardcoding.svn.hooktools.hook;
 
 import java.io.File;
 
+import org.tmatesoft.svn.core.wc.SVNRevision;
+
 /**
  * This class is the post-commit hook implementation.
  * 
@@ -23,7 +25,9 @@ public class PostCommitHook extends AbstractHook {
 
 	@Override
 	protected void parseParameters(String[] parameters) {
+		// Save repository path
 		this.repositoryPath = new File(parameters[0]);
-		this.revisionNumber = Integer.parseInt(parameters[1]);
+		// Save revision number
+		this.revisionNumber = SVNRevision.create(Integer.parseInt(parameters[1]));
 	}
 }

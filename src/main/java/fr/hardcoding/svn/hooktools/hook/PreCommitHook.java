@@ -23,7 +23,9 @@ public class PreCommitHook extends AbstractHook {
 
 	@Override
 	protected void parseParameters(String[] parameters) {
+		// Save repository path
 		this.repositoryPath = new File(parameters[0]);
+		// Save transaction name
 		this.transactionName = parameters[1];
 	}
 }

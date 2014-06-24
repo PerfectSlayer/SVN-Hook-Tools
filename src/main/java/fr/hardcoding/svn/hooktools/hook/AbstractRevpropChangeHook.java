@@ -65,13 +65,11 @@ public abstract class AbstractRevpropChangeHook extends AbstractHook {
 	protected String getRevpropValue(String propertyName) {
 		// Declare property value
 		String value = "";
-		// Create SVN revision
-		SVNRevision svnRevision = SVNRevision.create(this.revisionNumber);
 		// Get SVN look client
 		SVNLookClient lookClient = this.getSvnClientManager().getLookClient();
 		try {
 			// Get old property value
-			SVNPropertyValue svnPropertyValue = lookClient.doGetRevisionProperty(this.repositoryPath, propertyName, svnRevision);
+			SVNPropertyValue svnPropertyValue = lookClient.doGetRevisionProperty(this.repositoryPath, propertyName, this.revisionNumber);
 			value = svnPropertyValue.getString();
 		} catch (SVNException exception) {
 			HookTools.LOGGER.log(Level.WARNING, "Unable to retrieve property value.", exception);
@@ -111,7 +109,7 @@ public abstract class AbstractRevpropChangeHook extends AbstractHook {
 		// Save repository path
 		this.repositoryPath = new File(parameters[0]);
 		// Save revision whose property is changed
-		this.revisionNumber = Integer.parseInt(parameters[1]);
+		this.revisionNumber = SVNRevision.create(Integer.parseInt(parameters[1]));
 		// Save commit author and log
 		this.commitAuthor = parameters[2];
 		this.commitLog = "";

@@ -23,8 +23,11 @@ public class StartCommitHook extends AbstractHook {
 
 	@Override
 	protected void parseParameters(String[] parameters) {
+		// Save repository path
 		this.repositoryPath = new File(parameters[0]);
+		// Save commit author
 		this.commitAuthor = parameters[1];
+		// Save transaction name if available
 		if (parameters.length>3)
 			this.transactionName = parameters[3];
 	}
