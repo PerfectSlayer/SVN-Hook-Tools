@@ -16,5 +16,9 @@ public enum ResourceOperation {
 	/** The file updated operation. */
 	UPDATED,
 	/** The file or directory property change operation (only property, not content). */
-	PROPERTY_CHANGED;
+	PROPERTY_CHANGED,
+	/** The file or directory lock addition operation. */
+	LOCK,
+	/** The file or directory lock removal operation. */
+	UNLOCK;
 }
