@@ -19,4 +19,9 @@ public class MinLengthCommitLogCondition extends AbstractCommitLogCondition {
 	public boolean checkCommitLog(String commitLog) {
 		return commitLog.trim().length()<this.length;
 	}
+	
+	@Override
+	public String toString() {
+		return "Min lenght commit condition (length: "+this.length+")";
+	}
 }

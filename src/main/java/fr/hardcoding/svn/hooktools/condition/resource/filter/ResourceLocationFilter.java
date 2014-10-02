@@ -1,5 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
+import java.util.Objects;
+
 import fr.hardcoding.svn.hooktools.condition.StringComparison;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceLocation;
@@ -83,5 +85,10 @@ public class ResourceLocationFilter extends AbstractResourceFilter {
 			return false;
 		// Return filter match
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return "Resource location filter (type: "+Objects.toString(this.type)+", project: "+Objects.toString(this.projectName)+", branch: "+Objects.toString(this.branchName)+", tag: "+Objects.toString(tagName)+", path: "+Objects.toString(this.path)+")";
 	}
 }

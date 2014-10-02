@@ -1,5 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
+import java.util.Objects;
+
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceOperation;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
@@ -21,5 +23,10 @@ public class ResourceOperationFilter extends AbstractResourceFilter {
 	@Override
 	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
 		return this.operation==resourceChange.getOperation();
+	}
+
+	@Override
+	public String toString() {
+		return "Resource operation filter (operation: "+Objects.toString(this.operation)+")";
 	}
 }

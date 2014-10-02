@@ -1,5 +1,6 @@
 package fr.hardcoding.svn.hooktools.condition.author;
 
+import java.util.Objects;
 import java.util.logging.Level;
 
 import fr.hardcoding.svn.hooktools.HookTools;
@@ -43,5 +44,10 @@ public class AuthorCondition extends AbstractCondition {
 			// Invalidate the operation if data are not available
 			return false;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Author condition (name: "+Objects.toString(this.name)+")";
 	}
 }

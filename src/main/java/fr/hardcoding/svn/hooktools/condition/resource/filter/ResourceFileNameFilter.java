@@ -1,5 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
+import java.util.Objects;
+
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.hook.AbstractHook;
 
@@ -22,5 +24,10 @@ public class ResourceFileNameFilter extends AbstractResourceFilter {
 	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
 		// Check file name
 		return this.getFileName(resourceChange.getPath()).equals(this.fileName);
+	}
+	
+	@Override
+	public String toString() {
+		return "File name filter (name: "+Objects.toString(this.fileName)+")";
 	}
 }

@@ -126,7 +126,12 @@ public class Rule implements Serializable {
 			// Perform action
 			action.perform(hook);
 		}
-		// Return the breaker behavoir
+		// Return the breaker behavior
 		return this.breaker;
+	}
+	
+	@Override
+	public String toString() {
+		return "Rule "+this.name;
 	}
 }

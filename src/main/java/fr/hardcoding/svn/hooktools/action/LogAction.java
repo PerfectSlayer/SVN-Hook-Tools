@@ -1,5 +1,6 @@
 package fr.hardcoding.svn.hooktools.action;
 
+import java.util.Objects;
 import java.util.logging.Level;
 
 import fr.hardcoding.svn.hooktools.HookTools;
@@ -34,5 +35,10 @@ public class LogAction extends AbstractAction {
 	public void perform(AbstractHook hook) {
 		// Add log entry to application log
 		HookTools.LOGGER.log(Level.parse(this.level), "[LogAction] "+this.message);
+	}
+	
+	@Override
+	public String toString() {
+		return "Log action (message: "+Objects.toString(this.message)+")";
 	}
 }

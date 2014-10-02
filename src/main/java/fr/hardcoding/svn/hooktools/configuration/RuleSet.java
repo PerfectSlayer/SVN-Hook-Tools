@@ -494,7 +494,7 @@ public class RuleSet implements Serializable {
 			if (parameterValue==null) {
 				// Check parameter definition
 				if (configurationParameter.isRequired())
-					throw new Exception("The parameter \""+parameterName+"\" is not set.");
+					throw new Exception("The parameter \""+parameterName+"\" is not set for \""+node.getNodeName()+"\" node.");
 				// Skip parameter
 				continue;
 			}
@@ -544,5 +544,10 @@ public class RuleSet implements Serializable {
 			if (rule.process(hook))
 				break;
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return "Rule set ("+this.rules+")";
 	}
 }

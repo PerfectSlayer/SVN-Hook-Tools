@@ -19,4 +19,9 @@ public class AnyCondition extends AbtractGroupCondition {
 		// Stop evaluation if a condition invalidate the operation
 		return conditionStatus;
 	}
+	
+	@Override
+	public String toString() {
+		return "Any condition group ("+this.conditions+")";
+	}
 }

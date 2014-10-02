@@ -1,5 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
+import java.util.Objects;
+
 import fr.hardcoding.svn.hooktools.condition.StringComparison;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
@@ -40,5 +42,10 @@ public class ResourceFileExtensionFilter extends AbstractResourceFilter {
 			fileExtension = "";
 		// Check file extension
 		return this.fileExtensionComparison.compare(fileExtension, this.fileExtension);
+	}
+	
+	@Override
+	public String toString() {
+		return "File extension filter (extension: "+Objects.toString(this.fileExtension)+")";
 	}
 }

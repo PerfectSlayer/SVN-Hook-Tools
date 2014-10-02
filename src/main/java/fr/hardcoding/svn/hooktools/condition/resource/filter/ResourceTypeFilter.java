@@ -1,5 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
+import java.util.Objects;
+
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceType;
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
@@ -22,5 +24,10 @@ public class ResourceTypeFilter extends AbstractResourceFilter {
 	public boolean match(AbstractHook hook, ResourceChange resourceChange) {
 		// Check the if the resource type match resource type
 		return resourceChange.getType()==this.type;
+	}
+	
+	@Override
+	public String toString() {
+		return "Resource type filter (type: "+Objects.toString(this.type)+")";
 	}
 }

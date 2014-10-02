@@ -28,4 +28,9 @@ public class NotCondition extends AbtractGroupCondition {
 		// Do not stop the evaluation
 		return false;
 	}
+	
+	@Override
+	public String toString() {
+		return "Not condition ("+this.conditions+")";
+	}
 }

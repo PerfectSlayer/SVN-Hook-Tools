@@ -1,6 +1,7 @@
 package fr.hardcoding.svn.hooktools.condition.resource.filter;
 
 import java.util.Map;
+import java.util.Objects;
 
 import fr.hardcoding.svn.hooktools.condition.StringComparison;
 import fr.hardcoding.svn.hooktools.condition.resource.ResourceChange;
@@ -64,5 +65,10 @@ public class ResourcePropertyChangeFilter extends AbstractResourceFilter {
 			// Invalidate the operation if data are not available
 			return false;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Resource property change filter (old: "+Objects.toString(this.oldValue)+", new: "+Objects.toString(this.newValue)+")";
 	}
 }

@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import fr.hardcoding.svn.hooktools.HookTools;
@@ -96,5 +97,10 @@ public class RequestAction extends AbstractAction {
 		} catch (IOException exception) {
 			HookTools.LOGGER.log(Level.WARNING, "Unable to perform the request to \""+this.url+"\".", exception);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Request action (url: "+Objects.toString(this.url)+")";
 	}
 }

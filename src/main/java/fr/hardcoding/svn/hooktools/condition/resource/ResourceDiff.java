@@ -59,6 +59,11 @@ public class ResourceDiff {
 		return Collections.unmodifiableMap(this.propertyChanges);
 	}
 
+	@Override
+	public String toString() {
+		return "Resource diff (path: "+this.path+")";
+	}
+
 	/**
 	 * This class represents a property value change.
 	 * 

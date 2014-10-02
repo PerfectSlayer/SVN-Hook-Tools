@@ -1,5 +1,6 @@
 package fr.hardcoding.svn.hooktools.condition.commit;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import fr.hardcoding.svn.hooktools.configuration.ConfigurationParameter;
@@ -20,5 +21,10 @@ public class PatternCommitLogCondition extends AbstractCommitLogCondition {
 	@Override
 	public boolean checkCommitLog(String commitLog) {
 		return Pattern.matches(this.pattern, commitLog);
+	}
+	
+	@Override
+	public String toString() {
+		return "Pattern commit condition (pattern: "+Objects.toString(this.pattern)+")";
 	}
 }

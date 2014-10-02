@@ -72,4 +72,9 @@ public class ResourceCondition extends AbstractCondition {
 		// Return no resource change match
 		return false;
 	}
+	
+	@Override
+	public String toString() {
+		return "Resource condition ("+this.resourceFilters+")";
+	}
 }

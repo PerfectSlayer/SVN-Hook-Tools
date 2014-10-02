@@ -14,4 +14,9 @@ public class EmptyCommitLogCondition extends AbstractCommitLogCondition {
 	public boolean checkCommitLog(String commitLog) {
 		return commitLog.trim().isEmpty();
 	}
+
+	@Override
+	public String toString() {
+		return "Empty commit log condition";
+	}
 }

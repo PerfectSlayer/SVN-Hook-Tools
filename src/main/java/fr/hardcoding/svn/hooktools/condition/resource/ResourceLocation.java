@@ -1,5 +1,6 @@
 package fr.hardcoding.svn.hooktools.condition.resource;
 
+import java.util.Objects;
 
 /**
  * This class represents a resource location.
@@ -201,5 +202,11 @@ public class ResourceLocation {
 	 */
 	public String getTagName() {
 		return this.tagName;
+	}
+
+	@Override
+	public String toString() {
+		return "Resource location (type: "+this.locationType+", project: "+Objects.toString(this.projectName)+", branch: "+Objects.toString(this.branchName)
+				+", tag: "+Objects.toString(this.tagName)+")";
 	}
 }

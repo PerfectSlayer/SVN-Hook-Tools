@@ -30,4 +30,9 @@ public class ErrorAction extends AbstractAction {
 		// Set error code
 		hook.setErrorCode(this.code);
 	}
+
+	@Override
+	public String toString() {
+		return "Error action (code: "+this.code+")";
+	}
 }

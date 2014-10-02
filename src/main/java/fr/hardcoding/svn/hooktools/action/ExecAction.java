@@ -1,6 +1,7 @@
 package fr.hardcoding.svn.hooktools.action;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import fr.hardcoding.svn.hooktools.HookTools;
@@ -46,5 +47,10 @@ public class ExecAction extends AbstractAction {
 		} catch (InterruptedException exception) {
 			HookTools.LOGGER.log(Level.WARNING, "Unable to wait the result for the command: \""+this.command+"\".", exception);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "Exec action (command: "+Objects.toString(this.command)+")";
 	}
 }
