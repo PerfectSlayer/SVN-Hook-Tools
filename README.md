@@ -13,11 +13,15 @@ The SVN Hook Tools requires a 1.7 JVM.
 To deploy the tool, you will need to copy the `svn-hook-tools.jar` and its `config` directory at the same location, for example the `hook` directory of the repository.
 
 ### Call the tool
-To call the tool, edit the respository hook shell scripts you want to create tasks and add a the following call to the SVN Hook Tools:
+To call the tool, edit the respository hook shell scripts you want to create tasks and add a the following call to the SVN Hook Tools for Linux:
 ```bash
-java -jar svn-hook-tools.jar hook_parameter1 hook_parameter2 ... hook_parameterN
+java -jar svn-hook-tools.jar $(basename $0) $@
 ```
-To get the list of hook parameters, refers to [the Subversion Repository Hook Reference](http://svnbook.red-bean.com/nightly/en/svn.ref.reposhooks.html).
+or for Windows:
+```bash
+java -jar svn-hook-tools.jar %~n0 %*
+```
+The arguments needed to call the tool are the hook name and the hook script arguments.
 
 ## Setup
 
