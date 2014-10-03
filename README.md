@@ -7,7 +7,7 @@ For each hook is associated a rule-set where each rule contains a condition and 
 ## Installation
 
 ### Prerequisites
-The SVN Hook Tools requires a 1.8 JVM.
+The SVN Hook Tools requires a 1.7 JVM.
 
 ### Deployement
 To deploy the tool, you will need to copy the `svn-hook-tools.jar` and its `config` directory at the same location, for example the `hook` directory of the repository.
