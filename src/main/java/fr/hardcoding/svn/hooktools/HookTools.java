@@ -61,7 +61,7 @@ public class HookTools {
 		int hookParameterCount = hookType.getParameterCount();
 		if (args.length<hookParameterCount+1) {
 			// Log and exit
-			HookTools.LOGGER.severe("Missing hook parameters ("+hookParameterCount+" parameter waited).");
+			HookTools.LOGGER.severe("Missing hook parameters ("+hookParameterCount+" parameters waited).");
 			System.exit(-1);
 		}
 		// Create hook
